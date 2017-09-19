@@ -1,0 +1,99 @@
+// Component Interface Specification
+//  This file describes the behavior of a component on its boundaries by describing the
+//  valid behaviors for the interface in which the component connects to an outside
+//  environment/component.
+//
+//  NOTES:
+//    New items should be placed on new lines
+//    Comments are C++ styled and can be placed as is convenient
+//    DO NOT REMOVE DEFINE/END HEADER AND FOOTERS
+
+
+//------------------------------------------------
+// Define states
+//  Expected format:
+//    s#
+//
+//  Example:
+//    s0
+//    s1 - This is an optional comment
+//------------------------------------------------
+
+************* DEFINE STATES *****************
+
+
+
+************* END STATES *****************
+
+
+
+//------------------------------------------------
+// Define the initial state
+//------------------------------------------------
+
+************* DEFINE INITIAL *****************
+
+
+
+************* END INITIAL *****************
+
+
+
+//------------------------------------------------
+// Define the accepting states
+//  Note - IA typically don't identify an end
+//  state so this field may be left empty
+//------------------------------------------------
+
+************* DEFINE ACCEPTING ***************
+
+
+************* END ACCEPTING ***************
+
+
+
+//------------------------------------------------
+// Define all possible signals here
+//  Signals should be placed in their respective
+//  classifying group (Input, Output, or Internal)
+//
+//  Examples:
+//    req
+//    ack // This is an optional comment
+//------------------------------------------------
+
+************* DEFINE INPUTS *****************
+
+
+
+************* END INPUTS *****************
+************* DEFINE OUTPUTS *****************
+
+
+
+************* END OUTPUTS *****************
+************* DEFINE INTERNALS *****************
+
+
+
+************* END INTERNALS *****************
+************* END SIGNALS *****************
+
+
+
+
+//------------------------------------------------
+// Define transitions here
+//  Expected format:
+//    CurrentState:SomeAction>ResultingState
+//
+//  Examples:
+//    s0:req>s0 // This is an optional comment
+//    s0:ack>s2 // When in state s0, on action 1, move to state s2
+//------------------------------------------------
+
+************* DEFINE TRANSITIONS **************
+
+
+
+************* END TRANSITIONS **************

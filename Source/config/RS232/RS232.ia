@@ -1,0 +1,186 @@
+// Component Interface Specification
+//  This file describes the behavior of a component on its boundaries by describing the
+//  valid behaviors for the interface in which the component connects to an outside
+//  environment/component.
+//
+//  NOTES:
+//    New items should be placed on new lines
+//    Comments are C++ styled and can be placed as is convenient
+//    DO NOT REMOVE DEFINE/END HEADER AND FOOTERS
+
+
+//------------------------------------------------
+// Define states
+//  Expected format:
+//    s#
+//
+//  Example:
+//    s0
+//    s1 - This is an optional comment
+//------------------------------------------------
+
+************* DEFINE STATES *****************
+
+s0
+s1
+s2
+s3
+s4
+s5
+s6
+s7
+s8
+s9
+s10
+s11
+s12
+s13
+s14
+s15
+s16
+s17
+s18
+s19
+s20
+s21
+
+************* END STATES *****************
+
+
+
+//------------------------------------------------
+// Define the initial state
+//------------------------------------------------
+
+************* DEFINE INITIAL *****************
+
+s0
+
+
+************* END INITIAL *****************
+
+
+
+//------------------------------------------------
+// Define the accepting states
+//  Note - IA typically don't identify an end
+//  state so this field may be left empty
+//------------------------------------------------
+
+************* DEFINE ACCEPTING ***************
+
+
+************* END ACCEPTING ***************
+
+
+
+//------------------------------------------------
+// Define all possible signals here
+//  Signals should be placed in their respective
+//  classifying group (Input, Output, or Internal)
+//
+//  Examples:
+//    req
+//    ack // This is an optional comment
+//------------------------------------------------
+
+************* DEFINE INPUTS *****************
+
+xmitH
+uart_REC_dataH
+trans0
+trans1
+trans2
+trans3
+trans4
+trans5
+trans6
+trans7
+trans8
+trans9
+trans10
+trans11
+trans12
+trans13
+trans14
+trans15
+trans16
+trans17
+trans18
+
+************* END INPUTS *****************
+************* DEFINE OUTPUTS *****************
+
+xmit_doneH
+rec_readyH
+
+************* END OUTPUTS *****************
+************* DEFINE INTERNALS *****************
+
+
+
+************* END INTERNALS *****************
+************* END SIGNALS *****************
+
+
+
+
+//------------------------------------------------
+// Define transitions here
+//  Expected format:
+//    CurrentState:SomeAction>ResultingState
+//
+//  Examples:
+//    s0:req>s0 // This is an optional comment
+//    s0:ack>s2 // When in state s0, on action 1, move to state s2
+//------------------------------------------------
+
+************* DEFINE TRANSITIONS **************
+
+s0:xmitH>s1
+s1:xmitH>s1
+s1:trans0>s2
+s2:trans0>s2
+s2:trans1>s3
+s3:trans1>s3
+s3:trans2>s4
+s4:trans2>s4
+s4:trans3>s5
+s5:trans3>s5
+s5:trans4>s6
+s6:trans4>s6
+s6:trans5>s7
+s7:trans5>s7
+s7:trans6>s8
+s8:trans6>s8
+s8:trans7>s9
+s9:trans7>s9
+s9:trans8>s10
+s10:trans8>s10
+s10:trans9>s11
+s11:trans9>s11
+s11:xmit_doneH>s0
+s0:xmit_doneH>s0
+s0:trans10>s12
+s12:trans10>s12
+s12:trans11>s13
+s13:trans11>s13
+s13:trans12>s14
+s14:trans12>s14
+s14:trans13>s15
+s15:trans13>s15
+s15:trans14>s16
+s16:trans14>s16
+s16:trans15>s17
+s17:trans15>s17
+s17:trans16>s18
+s18:trans16>s18
+s18:trans17>s19
+s19:trans17>s19
+s19:trans18>s20
+s20:trans18>s20
+s20:!uart_REC_dataH>s21
+s21:!uart_REC_dataH>s21
+s21:rec_readyH:s0    // TODO: The vhdl checker produced for this automata has s0 as undefined and uses incorrect signal from signal set
+
+************* END TRANSITIONS **************

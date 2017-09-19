@@ -1,0 +1,24 @@
+Transition Label      Transition
+t0                    xmitH
+t1                    !xmit_doneH and !uart_XMIT_dataH
+t2                    !xmit_doneH and (uart_XMIT_dataH == xmit_dataH(0))
+t3                    !xmit_doneH and (uart_XMIT_dataH == xmit_dataH(1))
+t4                    !xmit_doneH and (uart_XMIT_dataH == xmit_dataH(2))
+t5                    !xmit_doneH and (uart_XMIT_dataH == xmit_dataH(3))
+t6                    !xmit_doneH and (uart_XMIT_dataH == xmit_dataH(4))
+t7                    !xmit_doneH and (uart_XMIT_dataH == xmit_dataH(5))
+t8                    !xmit_doneH and (uart_XMIT_dataH == xmit_dataH(6))
+t9                    !xmit_doneH and (uart_XMIT_dataH == xmit_dataH(7))
+t10                   !xmit_doneH and xmitH
+t11                   !uart_REC_dataH and !rec_readyH
+t12                   uart_REC_dataH == rec_dataH(0)
+t13                   uart_REC_dataH == rec_dataH(1)
+t14                   uart_REC_dataH == rec_dataH(2)
+t15                   uart_REC_dataH == rec_dataH(3)
+t16                   uart_REC_dataH == rec_dataH(4)
+t17                   uart_REC_dataH == rec_dataH(5)
+t18                   uart_REC_dataH == rec_dataH(6)
+t19                   uart_REC_dataH == rec_dataH(7)
+t20                   !uart_REC_dataH
+t21                   rec_readyH
+t22                   xmit_doneH and rec_readyH
