@@ -24,7 +24,7 @@ SPOT is available at: https://spot.lrde.epita.fr
 
 
 ## About the Code ##
-CAPSL is performed with a simple C++ program. The current functionality is summarized below with potential features interjected.
+CAPSL is performed with a simple C program. The current functionality is summarized below with potential features interjected.
 
 - Retrieve target IP interface specification files
   - Currently stored as two files (.ia and .sere)
