@@ -1,5 +1,5 @@
 # CAPSL
-Component Authentication Process for Sandboxed Layouts
+## Component Authentication Process for Sandboxed Layouts ##
 
 This repository holds the sources of the CAPSL tool that can be utilized to automatically generate
 a hardware sandbox for an untrusted IP in your hardware system. This repo is currently managed by
@@ -82,5 +82,5 @@ If you would like to help develop and improve CAPSL or are interested in utilizi
 one of the publications listed on our website below. We appreciate your interest so, please feel free to contact our lab for
 any questions you might have!
 
-SmartES Lab CAPSL Project Page:
+CAPSL Project Page:
 http://SmartES.uark.edu/Projects/CAPSL
