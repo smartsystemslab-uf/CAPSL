@@ -11,8 +11,8 @@ OUTPUTS_PATH = outputs
 OBJS =          $(OBJECT_PATH)/CAPSL.o \
 								$(OBJECT_PATH)/automaton.o \
 								$(OBJECT_PATH)/config.o \
-								$(OBJECT_PATH)/generateVHDL.o \
-								$(OBJECT_PATH)/generateSystemC.o
+								$(OBJECT_PATH)/generateVHDL.o
+								#$(OBJECT_PATH)/generateSystemC.o
 
 # Include options
 INCLUDEOPTS     = -I$(INCLUDES_PATH) \

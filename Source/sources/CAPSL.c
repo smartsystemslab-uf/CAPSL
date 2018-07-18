@@ -293,10 +293,11 @@ int main(int argc, char **argv)
       generateSandbox_VHDL(referenceSignalSet, allAutomata);
       break;
 
-    // If sandbox is to be generated in VHDL
-    case SystemC:
-      generateSandbox_SystemC(referenceSignalSet, allAutomata);
-      break;
+  	// TODO add systemC 
+    // If sandbox is to be generated in SystemC
+    // case SystemC:
+    //   generateSandbox_SystemC(referenceSignalSet, allAutomata);
+    //   break;
 
     // Default sandbox generation is to VHDL modules
     default:
