@@ -321,7 +321,7 @@ void automaton::printTransitionTable(signal_set signalSet, state_set stateSet, t
 
 
 // Generates a VHDL module of the automata
-//  Passed an index for unique states and the signal array for proper referencing in VHDL
+// Passed an index for unique states and the signal array for proper referencing in VHDL
 stringstream automaton::generateAutomata_VHDL(int index, int* illegalStateIndex, signal_set referenceSignalSet)
 {
   stringstream vhdl_out;
@@ -338,33 +338,21 @@ stringstream automaton::generateAutomata_VHDL(int index, int* illegalStateIndex,
   for(int transIndex = 0; transIndex < this->transitionSet.size(); transIndex++)
   {
 
-    // printTransitionInfo(this->transitionSet[transIndex]);
-
     // If the signal is composite
     if(this->transitionSet[transIndex].transitionSignal.type == composite)
     {
+			cout << "Composite Signal" << endl;
+			printTransitionInfo(this->transitionSet[transIndex]);
+
       int nextStateIndex = this->transitionSet[transIndex].nextState.index;
       int currentStateIndex = this->transitionSet[transIndex].currentState.index;
 
       signal_set compositeSignals = this->transitionSet[transIndex].transitionSignal.compositeSignalSet;
 
+			bool writeSignals = false;
 
       // Write the first portion of the statement
-      // Signal low logic
-      if(this->transitionSet[transIndex].onSignalEvent == Low)
-      {
-        // The addition of the not statement allows the state to the asserted even
-        //  for transitions that require the signal to be low (0)
-        vhdl_out << "\t\t\tS" << index << "_" << nextStateIndex << " <= (not(";
-      }
-
-      // Signal high logic
-      else
-      {
-        vhdl_out << "\t\t\tS" << index << "_" << nextStateIndex << " <= ((";
-      }
-
-
+			vhdl_out << "\t\t\tS" << index << "_" << nextStateIndex << " <= ";
 
       // Loop through each of the signals in the composite transition signal
       for(int signalIter_comp = 0; signalIter_comp < compositeSignals.size(); signalIter_comp++)
@@ -377,10 +365,35 @@ stringstream automaton::generateAutomata_VHDL(int index, int* illegalStateIndex,
           if(compositeSignals[signalIter_comp].ID == referenceSignalSet[signalIter_reference].ID)
           {
             signalIndex = referenceSignalSet[signalIter_reference].index;
+
+						// Update signal flag and first portion of statement
+						if (!writeSignals)
+						{
+							writeSignals = true;
+
+							// Signal low logic
+				      if(this->transitionSet[transIndex].onSignalEvent == Low)
+				      {
+				        // The addition of the not statement allows the state to the asserted even
+				        //  for transitions that require the signal to be low (0)
+				        vhdl_out << "(not(";
+				      }
+				      // Signal high logic
+				      else
+				      {
+				        vhdl_out << "((";
+				      }
+						}
           }
         }
 
-        // Add the signal to the current statement
+				// Do not add the signal if it was not found in reference set
+				if (signalIndex < 0)
+				{
+					continue;
+				}
+
+				// Add the signal to the current statement
 
         // Signal low logic
         if(this->transitionSet[transIndex].transitionSignal.compositeSignalEvents[signalIter_comp] == Low)
@@ -422,33 +435,51 @@ stringstream automaton::generateAutomata_VHDL(int index, int* illegalStateIndex,
       }
 
       // Write the final portion of the statement that specifies the current state
-      vhdl_out << ") and S" << index << "_" << currentStateIndex << ");" << endl;
+			if (writeSignals)
+			{
+				vhdl_out << ") and S" << index << "_" << currentStateIndex << ");" << endl;
+			}
+			else
+			{
+				vhdl_out << "S" << index << "_" << currentStateIndex << ";" << endl;
+			}
     }
 
     // If the signal is an always true
     else if(this->transitionSet[transIndex].transitionSignal.type == alwaysTrue)
     {
+			cout << "AlwaysTrue Signal" << endl;
+			printTransitionInfo(this->transitionSet[transIndex]);
+
       int nextStateIndex = this->transitionSet[transIndex].nextState.index;
       int currentStateIndex = this->transitionSet[transIndex].currentState.index;
 
-
+			bool writeSignals = false;
 
       // Write the statement with use of boolean value true
-      vhdl_out << "\t\t\tS" << index << "_" << nextStateIndex << " <= ((";
+      vhdl_out << "\t\t\tS" << index << "_" << nextStateIndex << " <= ";
+
+			// DEBUG
+			cout << "NUM SIGNALS: " << this->signalSet.size() << endl;
 
       // All variations of the signals mentioned in this automata will be given a transition
       //  that includes all of these variations 'or'ed together. Any trigger should assert.
       for(int signalIter_this = 0; signalIter_this < this->signalSet.size(); signalIter_this++)
       {
-        // cout << "NUM SIGNALS: " << this->signalSet.size() << endl;
+				printSignalInfo(signalSet[signalIter_this]);
 
         for(int signalIter_reference = 0; signalIter_reference < referenceSignalSet.size(); signalIter_reference++)
         {
-          // printSignalInfo(signalSet[signalIter_this]);
 
           // If this signal is in the reference set, then utilize its index
           if(this->signalSet[signalIter_this].ID == referenceSignalSet[signalIter_reference].ID)
           {
+						// include a ( if there is a signal set to write
+						if (!writeSignals)
+						{
+							writeSignals = true;
+							vhdl_out << "((";
+						}
             // All signals are combined with the or logic operator
             if(signalIter_this > 0)
             {
@@ -461,18 +492,27 @@ stringstream automaton::generateAutomata_VHDL(int index, int* illegalStateIndex,
       }
 
       // Finish the transition statement
-       vhdl_out << ") and S" << index << "_" << currentStateIndex << ");" << endl;
+			// if no signal set to write, just write the current state
+			if (writeSignals)
+			{
+				vhdl_out << ") and S" << index << "_" << currentStateIndex << ");" << endl;
+			}
+			else
+			{
+				vhdl_out << "S" << index << "_" << currentStateIndex << ";" << endl;
+			}
 
       // signal_set compositeSignals = this->transitionSet[transIndex].transitionSignal.compositeSignalSet;
       //
-      // // Write the statement with use of boolean value true
+      // Write the statement with use of boolean value true
       // vhdl_out << "\t\t\tS" << index << "_" << nextStateIndex << " <= (true and S" << index << "_" << currentStateIndex << ");" << endl;
     }
 
     // If the signal is typical
     else
     {
-      // printTransitionInfo(this->transitionSet[transIndex]);
+			cout << "Typical Signal" << endl;
+      printTransitionInfo(this->transitionSet[transIndex]);
 
       int signalIndex = this->transitionSet[transIndex].transitionSignal.index;
 
@@ -575,6 +615,8 @@ stringstream automaton::generateAutomata_VHDL(int index, int* illegalStateIndex,
   vhdl_out << "\t\tend if;" << endl;
   vhdl_out << "\tend process;" << endl;
   vhdl_out << endl;
+
+	cout << endl << endl;
 
   return vhdl_out;
 }
