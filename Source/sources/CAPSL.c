@@ -5,6 +5,22 @@ using namespace std;
 typedef vector<automaton> automatonSet;
 
 
+// Print the usage instructions for the program
+void printUsage()
+{
+	cout << "-------------------------------------------------------------------------------" << endl;
+	cout << "Usage: ./capsl [CONFIG DIRECTORY]" << endl;
+	cout << "\n Notes: " << endl;
+	cout << "        * config directories should be stored in Source/config/<CONFIG DIRECTORY>" << endl;
+	cout << "        * .ia and .sere files must be present in the chosen directory" << endl;
+	cout << "        * BasicRSA is default when no directory is provided" << endl;
+	cout << "\n Coming soon: " << endl;
+	cout << "              * simple .config file for configuration" << endl;
+	cout << "              * use --systemc for SystemC output - VHDL is default." << endl;
+	cout << "-------------------------------------------------------------------------------" << endl;
+}
+
+
 // Adds automaton to a set of automaton
 void addAutomaton(automaton toAdd, automatonSet *set)
 {
@@ -41,16 +57,8 @@ void addAndComposeAutomaton(automaton toAdd, automatonSet *set)
   return;
 }
 
-
 int main(int argc, char **argv)
 {
-  // Ensure correct usage
-  if (argc < 1)
-  {
-    cerr << "Usage: ./capsl component.config \n";
-    exit(0);
-  }
-
   // TODO - get this from argument list
   //  But not sure since I need to grab about three files
   //  so perhaps I could just have the manual state to create
@@ -124,8 +132,24 @@ int main(int argc, char **argv)
   // char *configFileName_SERE = "config/AES/AES.sere";
 
   // BasicRSA T100 - T400
-  char *configFileName_IA_Component = "config/BasicRSA/BasicRSA.ia";
-  char *configFileName_SERE = "config/BasicRSA/BasicRSA.sere";
+  // char *configFileName_IA_Component = "config/BasicRSA/BasicRSA.ia";
+  // char *configFileName_SERE = "config/BasicRSA/BasicRSA.sere";
+
+	char *configFileName_IA_Component;
+	char *configFileName_SERE;
+
+	// Ensure correct usage
+  if (argc < 2)		// no extra args included
+  {
+    printUsage();
+
+		configFileName_IA_Component = "config/BasicRSA/BasicRSA.ia";
+	  configFileName_SERE = "config/BasicRSA/BasicRSA.sere";
+  }
+	else
+	{
+		char *directory = argv[1];
+	}
 
 
 
@@ -268,6 +292,7 @@ int main(int argc, char **argv)
     cout << endl;
 
     cout << "AUTOMATA SET SIZE: " << allAutomata.size() << endl;
+		cout << endl << "********************" << endl << endl;
 
   }
 
@@ -293,7 +318,7 @@ int main(int argc, char **argv)
       generateSandbox_VHDL(referenceSignalSet, allAutomata);
       break;
 
-  	// TODO add systemC 
+  	// TODO add systemC
     // If sandbox is to be generated in SystemC
     // case SystemC:
     //   generateSandbox_SystemC(referenceSignalSet, allAutomata);
