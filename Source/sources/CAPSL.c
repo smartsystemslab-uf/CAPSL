@@ -1,5 +1,7 @@
 #include "global.h"
 #include "automaton.h"
+#include <cstring>
+
 using namespace std;
 
 typedef vector<automaton> automatonSet;
@@ -8,16 +10,17 @@ typedef vector<automaton> automatonSet;
 // Print the usage instructions for the program
 void printUsage()
 {
-	cout << "-------------------------------------------------------------------------------" << endl;
+	cout << "-----------------------------------------------------------------------------" << endl;
 	cout << "Usage: ./capsl [CONFIG DIRECTORY]" << endl;
 	cout << "\n Notes: " << endl;
-	cout << "        * config directories should be stored in Source/config/<CONFIG DIRECTORY>" << endl;
+	cout << "        * program will search Source/config for config directories" << endl;
 	cout << "        * .ia and .sere files must be present in the chosen directory" << endl;
-	cout << "        * BasicRSA is default when no directory is provided" << endl;
+	cout << "        * use -d for default configuration [BasicRSA]" << endl;
+	cout << "        * use -c for .config file [coming soon]" << endl;
 	cout << "\n Coming soon: " << endl;
 	cout << "              * simple .config file for configuration" << endl;
 	cout << "              * use --systemc for SystemC output - VHDL is default." << endl;
-	cout << "-------------------------------------------------------------------------------" << endl;
+	cout << "-----------------------------------------------------------------------------" << endl;
 }
 
 
@@ -137,21 +140,61 @@ int main(int argc, char **argv)
 
 	char *configFileName_IA_Component;
 	char *configFileName_SERE;
+	char *configFileName_Config;
+	char options[10];
+	int opt_count;
 
 	// Ensure correct usage
   if (argc < 2)		// no extra args included
   {
+		cerr << "ERROR: Please specify config, or use -d for default config.\n\n";
     printUsage();
-
-		configFileName_IA_Component = "config/BasicRSA/BasicRSA.ia";
-	  configFileName_SERE = "config/BasicRSA/BasicRSA.sere";
+		exit(0);
   }
-	else
-	{
-		char *directory = argv[1];
-	}
+
+	cout << "argv = " << argv << endl;
+	cout << "*argv = " << *argv << endl;
+	cout << "**argv = " << **argv << endl;
+
+	cout << "\n*++argv = " << *++argv << endl;
+	cout << "argv = " << argv << endl;
+	cout << "*argv = " << *argv << endl;
+	cout << "**argv = " << **argv << endl;
+
+	cout << "\n###argv = " << ++**argv << endl;
+	cout << "argv = " << argv << endl;
+	cout << "*argv = " << *argv << endl;
+	cout << "**argv = " << **argv << endl;
+
+	// cout << "\n++*argv = " << ++*argv << endl;
+	// cout << "argv = " << argv << endl;
+	// cout << "*argv = " << *argv << endl;
+	// cout << "**argv = " << **argv << endl;
 
 
+	// while (argc)
+	// {
+	// 	if (**argv == '-' && **argv++ == '-') 	// -- flag
+	// 	{
+	// 		**argv += 2;
+	// 		while (**argv != '\0')
+	// 		{
+	//
+	// 		}
+	// 	}
+	// 	else if (**argv == '-') 	// - flag
+	// 	{
+	// 		**argv++;
+	// 		while (**argv != '\0')
+	// 		{
+	//
+	// 		}
+	// 	}
+	// 	argc--; argv++;
+	// }
+
+
+	exit(0);
 
   // TODO - get the final design type from arg list
   outputType finalDesignType = VHDL;
