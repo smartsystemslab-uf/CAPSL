@@ -141,58 +141,56 @@ int main(int argc, char **argv)
 	char *configFileName_IA_Component;
 	char *configFileName_SERE;
 	char *configFileName_Config;
-	char options[10];
-	int opt_count;
+	char *flags;
+	int flag_count;
 
 	// Ensure correct usage
   if (argc < 2)		// no extra args included
   {
-		cerr << "ERROR: Please specify config, or use -d for default config.\n\n";
+		cerr << "ERROR: Please specify config, or use -d for ";
+		cerr << "\n default config [BasicRSA]\n\n";
     printUsage();
 		exit(0);
   }
 
-	cout << "argv = " << argv << endl;
-	cout << "*argv = " << *argv << endl;
-	cout << "**argv = " << **argv << endl;
+	// cout << **argv << endl;
+	// cout << *argv+1 << endl;
+	// cout << *(argv+1) << endl;
+	// cout << **(argv+1) << endl;
+	// cout << *(*argv+1) << endl;
+	// cout << *(argv+1)+1 << endl;
+	// cout << ++*++argv << endl;
+	// cout << endl;
+	// exit(0);
 
-	cout << "\n*++argv = " << *++argv << endl;
-	cout << "argv = " << argv << endl;
-	cout << "*argv = " << *argv << endl;
-	cout << "**argv = " << **argv << endl;
+	while (argc)
+	{
+		cout << "current word: " << *argv << endl;
+		cout << "argc: " << argc << endl;
+		if (**argv == '-') 	// - flag
+		{
+			// if (*(*argv+1) == '-')	// -- flag (next character is also -)
+			// {
+			//
+			// }
+			while (*++*argv != '\0')
+			{
+				if (**argv == '-')	// -- flag
+				{
+					*++*argv;
+					cout << *argv << endl;
+					// do something with --option
+					// exit loop
+					break;
+				}
+				
+				flags[flag_count++] = **argv;
+			}
+		}
+		argc--; argv++;
+	}
 
-	cout << "\n###argv = " << ++**argv << endl;
-	cout << "argv = " << argv << endl;
-	cout << "*argv = " << *argv << endl;
-	cout << "**argv = " << **argv << endl;
-
-	// cout << "\n++*argv = " << ++*argv << endl;
-	// cout << "argv = " << argv << endl;
-	// cout << "*argv = " << *argv << endl;
-	// cout << "**argv = " << **argv << endl;
-
-
-	// while (argc)
-	// {
-	// 	if (**argv == '-' && **argv++ == '-') 	// -- flag
-	// 	{
-	// 		**argv += 2;
-	// 		while (**argv != '\0')
-	// 		{
-	//
-	// 		}
-	// 	}
-	// 	else if (**argv == '-') 	// - flag
-	// 	{
-	// 		**argv++;
-	// 		while (**argv != '\0')
-	// 		{
-	//
-	// 		}
-	// 	}
-	// 	argc--; argv++;
-	// }
-
+	cout << flags << endl;
 
 	exit(0);
 
