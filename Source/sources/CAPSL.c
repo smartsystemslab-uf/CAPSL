@@ -7,23 +7,6 @@ using namespace std;
 typedef vector<automaton> automatonSet;
 
 
-// Print the usage instructions for the program
-void printUsage()
-{
-	cout << "-----------------------------------------------------------------------------" << endl;
-	cout << "Usage: ./capsl [CONFIG DIRECTORY]" << endl;
-	cout << "\n Notes: " << endl;
-	cout << "        * program will search Source/config for config directories" << endl;
-	cout << "        * .ia and .sere files must be present in the chosen directory" << endl;
-	cout << "        * use -d for default configuration [BasicRSA]" << endl;
-	cout << "        * use -c for .config file [coming soon]" << endl;
-	cout << "\n Coming soon: " << endl;
-	cout << "              * simple .config file for configuration" << endl;
-	cout << "              * use --systemc for SystemC output - VHDL is default." << endl;
-	cout << "-----------------------------------------------------------------------------" << endl;
-}
-
-
 // Adds automaton to a set of automaton
 void addAutomaton(automaton toAdd, automatonSet *set)
 {
@@ -58,6 +41,29 @@ void addAndComposeAutomaton(automaton toAdd, automatonSet *set)
   set->push_back(toAdd);
   cout << "   No compatible automata in set, adding to set." << endl;
   return;
+}
+
+
+// Print the usage instructions for the program
+void printUsage(bool shortUsage = false)
+{
+	if (shortUsage)
+	{
+		cout << "Usage: ./capsl [-dc] [--systemC] [CONFIG DIRECTORY...]" << endl;
+		return;
+	}
+
+	cout << "-----------------------------------------------------------------------------" << endl;
+	cout << "Usage: ./capsl [-dc] [--systemC] [CONFIG DIRECTORY...]" << endl;
+	cout << "\n Notes: " << endl;
+	cout << "        * program will search Source/config for config directories" << endl;
+	cout << "        * .ia and .sere files must be present in the chosen directory" << endl;
+	cout << "        * use -d for default configuration [BasicRSA]" << endl;
+	cout << "\n Coming soon: " << endl;
+	cout << "        * simple .config file for configuration" << endl;
+	cout << "        * use -c for .config file [coming soon]" << endl;
+	cout << "        * use --systemc for SystemC output - VHDL is default." << endl;
+	cout << "-----------------------------------------------------------------------------" << endl;
 }
 
 int main(int argc, char **argv)
@@ -138,60 +144,73 @@ int main(int argc, char **argv)
   // char *configFileName_IA_Component = "config/BasicRSA/BasicRSA.ia";
   // char *configFileName_SERE = "config/BasicRSA/BasicRSA.sere";
 
-	char *configFileName_IA_Component;
+	char *configFileName_IA;
 	char *configFileName_SERE;
 	char *configFileName_Config;
-	char *flags;
-	int flag_count;
+
+	char *options;
+	char **flags;
+	int opt_count = 0;
 
 	// Ensure correct usage
   if (argc < 2)		// no extra args included
   {
-		cerr << "ERROR: Please specify config, or use -d for ";
-		cerr << "\n default config [BasicRSA]\n\n";
+		cerr << "./capsl: Please specify config, or use -d for ";
+		cerr << "default config [BasicRSA]\n\n";
     printUsage();
 		exit(0);
   }
 
-	// cout << **argv << endl;
-	// cout << *argv+1 << endl;
-	// cout << *(argv+1) << endl;
-	// cout << **(argv+1) << endl;
-	// cout << *(*argv+1) << endl;
-	// cout << *(argv+1)+1 << endl;
-	// cout << ++*++argv << endl;
-	// cout << endl;
-	// exit(0);
-
+	// sort command line arguments
 	while (argc)
 	{
 		cout << "current word: " << *argv << endl;
 		cout << "argc: " << argc << endl;
 		if (**argv == '-') 	// - flag
 		{
-			// if (*(*argv+1) == '-')	// -- flag (next character is also -)
-			// {
-			//
-			// }
 			while (*++*argv != '\0')
 			{
 				if (**argv == '-')	// -- flag
 				{
-					*++*argv;
+					++*argv;
 					cout << *argv << endl;
 					// do something with --option
 					// exit loop
 					break;
 				}
-				
-				flags[flag_count++] = **argv;
+				cout << "- only " << endl;
+				options[opt_count++] = **argv;	// incorrect
 			}
 		}
 		argc--; argv++;
 	}
 
-	cout << flags << endl;
+	// terminate char array
+	options[opt_count] = '\0';
 
+	// handle options
+	do
+	{
+		switch (*options)
+		{
+			case 'd':
+				// default config
+				configFileName_IA = "config/BasicRSA/BasicRSA.ia";
+				configFileName_SERE = "config/BasicRSA/BasicRSA.sere";
+				configFileName_Config = "config/BasicRSA/BasicRSA.config";
+				cout << "defaut configuration" << endl;
+				break;
+
+			case 'c':
+				// use config file instead of ia and sere
+				// TODO add config file
+				cout << "use config file" << endl;
+				break;
+
+			default:
+				cerr << "./capsl: illegal option -- " << *options << endl;
+		}
+	}	while (*++options != '\0');
 	exit(0);
 
   // TODO - get the final design type from arg list
@@ -215,7 +234,7 @@ int main(int argc, char **argv)
   signal_set signalSet_IA_Component;
   transition_set transitionSet_IA_Component;
 
-  processIAConfiguration(configFileName_IA_Component,
+  processIAConfiguration(configFileName_IA,
                          &stateSet_IA_Component,
                          &signalSet_IA_Component,
                          &transitionSet_IA_Component);
