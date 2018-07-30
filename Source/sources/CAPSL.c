@@ -1,10 +1,35 @@
 #include "global.h"
 #include "automaton.h"
 #include <cstring>
+#include <string>
+#include <vector>
+#include <fstream>
 
 using namespace std;
 
 typedef vector<automaton> automatonSet;
+
+// Print the usage instructions for the program
+void printUsage(bool shortUsage = false)
+{
+	if (shortUsage)
+	{
+		cout << "Usage: ./capsl [-dc] [--systemC] [CONFIG DIRECTORY...]" << endl;
+		return;
+	}
+
+	cout << "-----------------------------------------------------------------------------" << endl;
+	cout << "Usage: ./capsl [-dc] [--systemC] [CONFIG DIRECTORY...]" << endl;
+	cout << "\n Notes: " << endl;
+	cout << "        * program will search Source/config for config directories" << endl;
+	cout << "        * .ia and .sere files must be present in the chosen directory" << endl;
+	cout << "        * use -d for default configuration [BasicRSA]" << endl;
+	cout << "\n Coming soon: " << endl;
+	cout << "        * simple .config file for configuration" << endl;
+	cout << "        * use -c for .config file" << endl;
+	cout << "        * use --systemc for SystemC output - VHDL is default." << endl;
+	cout << "-----------------------------------------------------------------------------" << endl;
+}
 
 
 // Adds automaton to a set of automaton
@@ -41,29 +66,6 @@ void addAndComposeAutomaton(automaton toAdd, automatonSet *set)
   set->push_back(toAdd);
   cout << "   No compatible automata in set, adding to set." << endl;
   return;
-}
-
-
-// Print the usage instructions for the program
-void printUsage(bool shortUsage = false)
-{
-	if (shortUsage)
-	{
-		cout << "Usage: ./capsl [-dc] [--systemC] [CONFIG DIRECTORY...]" << endl;
-		return;
-	}
-
-	cout << "-----------------------------------------------------------------------------" << endl;
-	cout << "Usage: ./capsl [-dc] [--systemC] [CONFIG DIRECTORY...]" << endl;
-	cout << "\n Notes: " << endl;
-	cout << "        * program will search Source/config for config directories" << endl;
-	cout << "        * .ia and .sere files must be present in the chosen directory" << endl;
-	cout << "        * use -d for default configuration [BasicRSA]" << endl;
-	cout << "\n Coming soon: " << endl;
-	cout << "        * simple .config file for configuration" << endl;
-	cout << "        * use -c for .config file [coming soon]" << endl;
-	cout << "        * use --systemc for SystemC output - VHDL is default." << endl;
-	cout << "-----------------------------------------------------------------------------" << endl;
 }
 
 int main(int argc, char **argv)
@@ -144,13 +146,12 @@ int main(int argc, char **argv)
   // char *configFileName_IA_Component = "config/BasicRSA/BasicRSA.ia";
   // char *configFileName_SERE = "config/BasicRSA/BasicRSA.sere";
 
-	char *configFileName_IA;
-	char *configFileName_SERE;
-	char *configFileName_Config;
+	string optStr;
+	const char *options;
+	vector<string> flags;
 
-	char *options;
-	char **flags;
-	int opt_count = 0;
+	string configLocation = "config/";
+	bool dotConfig = false;
 
 	// Ensure correct usage
   if (argc < 2)		// no extra args included
@@ -162,10 +163,10 @@ int main(int argc, char **argv)
   }
 
 	// sort command line arguments
+	// first, get rid of ./capsl
+	argc--; argv++;
 	while (argc)
 	{
-		cout << "current word: " << *argv << endl;
-		cout << "argc: " << argc << endl;
 		if (**argv == '-') 	// - flag
 		{
 			while (*++*argv != '\0')
@@ -173,54 +174,130 @@ int main(int argc, char **argv)
 				if (**argv == '-')	// -- flag
 				{
 					++*argv;
-					cout << *argv << endl;
-					// do something with --option
-					// exit loop
+					flags.push_back(*argv);
+
+					// move on to next word
 					break;
 				}
-				cout << "- only " << endl;
-				options[opt_count++] = **argv;	// incorrect
+				// assign -options to string
+				optStr += **argv;
 			}
+		}
+		else	// config location
+		{
+			configLocation += *argv;
+			configLocation += "/";
+			configLocation += *argv;
 		}
 		argc--; argv++;
 	}
 
-	// terminate char array
-	options[opt_count] = '\0';
+	// string to char*
+	options = optStr.c_str();
 
 	// handle options
 	do
 	{
+		if (optStr.empty())
+		{
+			// no options
+			break;
+		}
+
 		switch (*options)
 		{
 			case 'd':
 				// default config
-				configFileName_IA = "config/BasicRSA/BasicRSA.ia";
-				configFileName_SERE = "config/BasicRSA/BasicRSA.sere";
-				configFileName_Config = "config/BasicRSA/BasicRSA.config";
-				cout << "defaut configuration" << endl;
+				configLocation = "config/BasicRSA/BasicRSA";
 				break;
 
+			// TODO add this once config file is supported
 			case 'c':
 				// use config file instead of ia and sere
-				// TODO add config file
-				cout << "use config file" << endl;
+				dotConfig = true;
 				break;
 
 			default:
-				cerr << "./capsl: illegal option -- " << *options << endl;
+				cerr << "capsl: illegal option -- \'" << *options << "\'" << endl;
 		}
 	}	while (*++options != '\0');
-	exit(0);
 
-  // TODO - get the final design type from arg list
+	// get the final design type from arg list
   outputType finalDesignType = VHDL;
 
-  // Define our set of automata
+	// handle flags
+	while (flags.size() > 0)
+	{
+		// TODO add this when SystemC is added
+		// if (flags.back() == "systemc")
+		// {
+		// 	// use SystemC output
+		// 	finalDesignType = SystemC;
+		// }
+		// else
+		// {
+			cerr << "capsl: illegal flag -- \"" << flags.back() << "\"" << endl;
+			exit(0);
+		// }
+		flags.pop_back();
+	}
+
+	// Define config files
+	string configLocation_IA = configLocation;
+	string configLocation_SERE = configLocation;
+	string configLocation_Config = configLocation;
+	// cout << configLocation_IA << endl;
+	// cout << configLocation_SERE << endl;
+	// cout << configLocation_Config << endl << endl;
+	// TODO fix bug here
+
+	char *configFileName_IA = const_cast<char*>(configLocation_IA.c_str());
+	strcat(configFileName_IA, ".ia");
+	char *configFileName_SERE = const_cast<char*>(configLocation_SERE.c_str());
+	strcat(configFileName_SERE, ".sere");
+	char *configFileName_Config = const_cast<char*>(configLocation_Config.c_str());
+	strcat(configFileName_Config, ".config");
+	// cout << configFileName_IA << endl;
+	// cout << configFileName_SERE << endl;
+	// cout << configFileName_Config << endl;
+
+	// check that config file(s) exist
+	if (dotConfig)
+	{
+		ifstream f(configFileName_Config);
+		if (!f.good())
+		{
+			// config file not found
+			cerr << "capsl: " << configFileName_Config << " could not be opened." << endl;
+			cerr << " check capsl/Source/config for config directories." << endl;
+			exit(0);
+		}
+	}
+	else
+	{
+		ifstream f(configFileName_IA);
+		ifstream g(configFileName_SERE);
+		if (!f.good())
+		{
+			cerr << "capsl: " << configFileName_IA << " could not be opened." << endl;
+		}
+		if (!g.good())
+		{
+			cerr << "capsl: " << configFileName_SERE << " could not be opened." << endl;
+		}
+		if (!f.good() || !g.good())
+		{
+			cerr << " check capsl/Source/config for config directories." << endl;
+			exit(0);
+		}
+	}
+
+	// Define our set of automata
   automatonSet allAutomata;
 
 
   cout << endl << "## CAPSL ##" << endl << endl;
+	exit(0);
 
 
   //*****************
