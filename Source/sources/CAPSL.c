@@ -22,12 +22,12 @@ void printUsage(bool shortUsage = false)
 	cout << "Usage: ./capsl [-dc] [--systemC] [CONFIG DIRECTORY...]" << endl;
 	cout << "\n Notes: " << endl;
 	cout << "        * program will search Source/config for config directories" << endl;
-	cout << "        * .ia and .sere files must be present in the chosen directory" << endl;
 	cout << "        * use -d for default configuration [BasicRSA]" << endl;
+	cout << "        * use --help or --usage to print this message" << endl;
 	cout << "\n Coming soon: " << endl;
 	cout << "        * simple .config file for configuration" << endl;
 	cout << "        * use -c for .config file" << endl;
-	cout << "        * use --systemc for SystemC output - VHDL is default." << endl;
+	cout << "        * use --systemc for SystemC output - VHDL is default" << endl;
 	cout << "-----------------------------------------------------------------------------" << endl;
 }
 
@@ -191,9 +191,9 @@ int main(int argc, char **argv)
 		}
 		argc--; argv++;
 	}
-
 	// string to char*
 	options = optStr.c_str();
+
 
 	// handle options
 	do
@@ -212,54 +212,56 @@ int main(int argc, char **argv)
 				break;
 
 			// TODO add this once config file is supported
-			case 'c':
-				// use config file instead of ia and sere
-				dotConfig = true;
-				break;
+			// case 'c':
+			// 	// use config file instead of ia and sere
+			// 	dotConfig = true;
+			// 	break;
 
 			default:
 				cerr << "capsl: illegal option -- \'" << *options << "\'" << endl;
 		}
 	}	while (*++options != '\0');
 
+
 	// get the final design type from arg list
   outputType finalDesignType = VHDL;
+
 
 	// handle flags
 	while (flags.size() > 0)
 	{
+		string flag = flags.back();
+		if (flag == "help" || flag == "usage")
+		{
+			printUsage();
+			exit(0);
+		}
 		// TODO add this when SystemC is added
-		// if (flags.back() == "systemc")
+		// if (flag == "systemc")
 		// {
 		// 	// use SystemC output
 		// 	finalDesignType = SystemC;
 		// }
-		// else
-		// {
-			cerr << "capsl: illegal flag -- \"" << flags.back() << "\"" << endl;
+		else
+		{
+			cerr << "capsl: illegal flag -- \"" << flag << "\"" << endl;
 			exit(0);
-		// }
+		}
 		flags.pop_back();
 	}
 
 	// Define config files
-	string configLocation_IA = configLocation;
-	string configLocation_SERE = configLocation;
-	string configLocation_Config = configLocation;
-	// cout << configLocation_IA << endl;
-	// cout << configLocation_SERE << endl;
-	// cout << configLocation_Config << endl << endl;
-	// TODO fix bug here
+	string configLocation_IA = configLocation + ".ia";
+	string configLocation_SERE = configLocation + ".sere";
+	string configLocation_Config = configLocation + ".config";
 
-	char *configFileName_IA = const_cast<char*>(configLocation_IA.c_str());
-	strcat(configFileName_IA, ".ia");
-	char *configFileName_SERE = const_cast<char*>(configLocation_SERE.c_str());
-	strcat(configFileName_SERE, ".sere");
-	char *configFileName_Config = const_cast<char*>(configLocation_Config.c_str());
-	strcat(configFileName_Config, ".config");
-	// cout << configFileName_IA << endl;
-	// cout << configFileName_SERE << endl;
-	// cout << configFileName_Config << endl;
+	char configFileName_IA[configLocation_IA.size()];
+	char configFileName_SERE[configLocation_SERE.size()];
+	char configFileName_Config[configLocation_Config.size()];
+
+	strcpy(configFileName_IA, configLocation_IA.c_str());
+	strcpy(configFileName_SERE, configLocation_SERE.c_str());
+	strcpy(configFileName_Config, configLocation_Config.c_str());
 
 	// check that config file(s) exist
 	if (dotConfig)
@@ -297,7 +299,6 @@ int main(int argc, char **argv)
 
 
   cout << endl << "## CAPSL ##" << endl << endl;
-	exit(0);
 
 
   //*****************
