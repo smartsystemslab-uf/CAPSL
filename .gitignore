@@ -1,2 +1,5 @@
 // Remove Mac Filesystem Residue
 .DS_Store
+
+// Ignore .tags file for atom 
+.tags
