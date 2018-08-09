@@ -76,93 +76,14 @@ int main(int argc, char **argv)
   //  these files in the config folder...
   //  Well, hardcoded for now
 
-  // char *configFileName_SERE = "config/emptySERE.config";
-
-  // char *configFileName_IA_Component = "config/serial.config";
-  // char *configFileName_IA_System = "config/serial.config";
-  // char *configFileName_SERE = "config/SERE.config";
-
-  // char *configFileName_IA_Component = "config/easyIA_Component.config";
-  // char *configFileName_IA_System = "config/easyIA_System.config";
-  // char *configFileName_SERE = "config/easySERE.config";
-
-  // These are IA specifications from the interface automata paper with empty SERE
-  // char *configFileName_IA_Component = "config/messageIA.config";
-  // char *configFileName_IA_Component = "config/userIA.config";
-  // char *configFileName_IA_Component2 = "config/userIA.config";
-  // char *configFileName_IA_System = "config/channelIA.config";
-  // char *configFileName_IA_System = "config/messageIA.config";
-  // char *configFileName_SERE = "config/message_userSERE.config";
-
-  // Adder IA and SERE
-  // char *configFileName_IA_Component = "config/adderIA_Component.config";
-  // char *configFileName_IA_Component2 = "config/subtractorIA_Component.config";
-  // char *configFileName_IA_System = "config/adderIA_System.config";
-  // char *configFileName_SERE = "config/adderSERE.config";
-
-  // UART IA and SERE
-  // char *configFileName_IA_Component = "config/UART_IA_Component.config";
-  // char *configFileName_IA_System = "config/UART_IA_System.config";
-  // char *configFileName_SERE = "config/UART_SERE.config";
-
-  // UserDeviceRelay
-  // char *configFileName_IA_Component = "config/UserDeviceRelay/device.ia";
-  // char *configFileName_IA_Component2 = "config/UserDeviceRelay/relay.ia";
-  // char *configFileName_IA_Component3 = "config/UserDeviceRelay/user.ia";
-  // char *configFileName_IA_System = "config/UserDeviceRelay/system.ia";
-  // char *configFileName_SERE = "config/UserDeviceRelay/rules.sere";
-  // char *configFileName_SERE = "config/empty.SERE";
-
-
-  // BasicRSA-T100
-  // char *configFileName_IA_Component = "config/BasicRSA/T100/T100.ia";
-  // char *configFileName_IA_System = "config/BasicRSA/T100/system.ia";
-  // char *configFileName_SERE = "config/BasicRSA/T100/rules.sere";
-
-  // BasicRSA-T200
-  // char *configFileName_IA_Component = "config/BasicRSA/T200.ia";
-  // char *configFileName_IA_System = "config/BasicRSA/T200/system.ia";
-  // char *configFileName_SERE = "config/BasicRSA/T200/rules.sere";
-
-  // RS232-T100
-  // char *configFileName_IA_Component = "config/RS232/T100/T100.ia";
-  // char *configFileName_IA_System = "config/RS232/T100/system.ia";
-  // char *configFileName_SERE = "config/RS232/T100/rules.sere";
-
-  // RS232-T300
-  // char *configFileName_IA_Component = "config/RS232/T300/T300.ia";
-  // char *configFileName_IA_System = "config/RS232/T300/system.ia";
-  // char *configFileName_SERE = "config/RS232/T300/rules.sere";
-
-  // RS232 T100 - T901
-  // char *configFileName_IA_Component = "config/RS232/RS232.ia";
-  // char *configFileName_SERE = "config/RS232/RS232.sere";
-
-  // AES T100 - T1000
-  // char *configFileName_IA_Component = "config/AES/AES.ia";
-  // char *configFileName_SERE = "config/AES/AES.sere";
-
-  // BasicRSA T100 - T400
-  // char *configFileName_IA_Component = "config/BasicRSA/BasicRSA.ia";
-  // char *configFileName_SERE = "config/BasicRSA/BasicRSA.sere";
-
 	string optStr;
 	const char *options;
 	vector<string> flags;
 
-	string configLocation = "config/";
-	bool dotConfig = false;
+	string configLocation = "config/BasicRSA/BasicRSA";		// use BasicRSA as default
+	ConfigFormat configFormat = ia_and_sere;
 
-	// Ensure correct usage
-  if (argc < 2)		// no extra args included
-  {
-		cerr << "./capsl: Please specify config, or use -d for ";
-		cerr << "default config [BasicRSA]\n\n";
-    printUsage();
-		exit(0);
-  }
-
-	// sort command line arguments
+	// SORT COMMAND LINE ARGUMENTS
 	// first, get rid of ./capsl
 	argc--; argv++;
 	while (argc)
@@ -185,6 +106,7 @@ int main(int argc, char **argv)
 		}
 		else	// config location
 		{
+			configLocation = "config/";
 			configLocation += *argv;
 			configLocation += "/";
 			configLocation += *argv;
@@ -195,7 +117,7 @@ int main(int argc, char **argv)
 	options = optStr.c_str();
 
 
-	// handle options
+	// HANDLE OPTIONS
 	do
 	{
 		if (optStr.empty())
@@ -213,8 +135,8 @@ int main(int argc, char **argv)
 
 			// TODO add this once config file is supported
 			// case 'c':
-			// 	// use config file instead of ia and sere
-			// 	dotConfig = true;
+			// 	// use .config instead of .ia and .sere
+			// 	configFormat = ConfigFormat::config;
 			// 	break;
 
 			default:
@@ -227,7 +149,7 @@ int main(int argc, char **argv)
   outputType finalDesignType = VHDL;
 
 
-	// handle flags
+	// HANDLE FLAGS
 	while (flags.size() > 0)
 	{
 		string flag = flags.back();
@@ -264,18 +186,7 @@ int main(int argc, char **argv)
 	strcpy(configFileName_Config, configLocation_Config.c_str());
 
 	// check that config file(s) exist
-	if (dotConfig)
-	{
-		ifstream f(configFileName_Config);
-		if (!f.good())
-		{
-			// config file not found
-			cerr << "capsl: " << configFileName_Config << " could not be opened." << endl;
-			cerr << " check capsl/Source/config for config directories." << endl;
-			exit(0);
-		}
-	}
-	else
+	if (configFormat == ia_and_sere)
 	{
 		ifstream f(configFileName_IA);
 		ifstream g(configFileName_SERE);
@@ -293,6 +204,17 @@ int main(int argc, char **argv)
 			exit(0);
 		}
 	}
+	else
+	{
+		ifstream f(configFileName_Config);
+		if (!f.good())
+		{
+			// config file not found
+			cerr << "capsl: " << configFileName_Config << " could not be opened." << endl;
+			cerr << " check capsl/Source/config for config directories." << endl;
+			exit(0);
+		}
+	}
 
 	// Define our set of automata
   automatonSet allAutomata;
@@ -301,10 +223,27 @@ int main(int argc, char **argv)
   cout << endl << "## CAPSL ##" << endl << endl;
 
 
+
+
+	//*****************
+  //   Read Config
+  //*****************
+
+	// Define a container for all of the information to be
+	// retrieved from the ia/sere/config files
+	configInfo config_info;
+
+	// Read config specifications from the appropriate source
+	readConfig(configFileName_IA,
+						 configFileName_SERE,
+					 	 configFileName_Config,
+					 	 configFormat,
+					 	 config_info);
+
+
   //*****************
   //       IA
   //*****************
-
 
   // Component IA configuration will be stored in these containers
   //  to be passed to automaton
@@ -312,10 +251,10 @@ int main(int argc, char **argv)
   signal_set signalSet_IA_Component;
   transition_set transitionSet_IA_Component;
 
-  processIAConfiguration(configFileName_IA,
-                         &stateSet_IA_Component,
-                         &signalSet_IA_Component,
-                         &transitionSet_IA_Component);
+	processIAConfiguration(&stateSet_IA_Component,
+												 &signalSet_IA_Component,
+											 	 &transitionSet_IA_Component,
+											 	 config_info);
 
   cout << "Building Component1 Interface..." << endl;
   automaton componentIA(stateSet_IA_Component, signalSet_IA_Component, transitionSet_IA_Component);
@@ -326,7 +265,7 @@ int main(int argc, char **argv)
   cout << endl;
 
 
-  // // Component IA configuration will be stored in these containers
+  // // Component2 IA configuration will be stored in these containers
   // //  to be passed to automaton
   // state_set stateSet_IA_Component2;
   // signal_set signalSet_IA_Component2;
@@ -346,7 +285,7 @@ int main(int argc, char **argv)
   // cout << endl;
 
 
-  // // Component IA configuration will be stored in these containers
+  // // Component3 IA configuration will be stored in these containers
   // //  to be passed to automaton
   // state_set stateSet_IA_Component3;
   // signal_set signalSet_IA_Component3;
@@ -364,7 +303,6 @@ int main(int argc, char **argv)
   // cout << "Adding Component3 automata to set..." << endl;
   // addAndComposeAutomaton(componentIA3, &allAutomata);
   // cout << endl;
-
 
 
   // // System IA configuration will stored in these containers
@@ -387,8 +325,6 @@ int main(int argc, char **argv)
   // cout << endl;
 
 
-
-
   // NOTE
   //  The complete IA automata will contain all of the signals refereced
   //    in the SERE configurations. Thus we need to give them a reference for
@@ -400,6 +336,7 @@ int main(int argc, char **argv)
   //   printSignalInfo(referenceSignalSet[i]);
   // }
 
+
   //*****************
   //      SERE
   //*****************
@@ -409,12 +346,12 @@ int main(int argc, char **argv)
   vector<state_set> stateSets_SERE;
   vector<signal_set> signalSets_SERE;
   vector<transition_set> transitionSets_SERE;
-  //
+
   // Get the SERE configuration and pack into containers
-  processSEREConfiguration(configFileName_SERE,
-                           &stateSets_SERE,
-                           &signalSets_SERE,
-                           &transitionSets_SERE);
+	processSEREConfiguration(&stateSets_SERE,
+													 &signalSets_SERE,
+												 	 &transitionSets_SERE,
+												 	 config_info);
 
   // Go through all sets that were taken from the SERE specification and add them
   int numRules = stateSets_SERE.size(); // any of those sets would be fine, all same size

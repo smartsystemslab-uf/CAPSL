@@ -14,18 +14,35 @@ using namespace std;
 #define   MAX_SERE_RULES    100
 
 
-// Possible program outputs
-enum outputType{ VHDL, SystemC };
-
-
 // Type names
 typedef vector<int> vector_int;
 typedef vector<string> vector_string;
 typedef vector< vector<vector_int> > table;
 
+// Possible program outputs
+enum outputType{ VHDL, SystemC };\
 
 // Automata types
 enum AutomataType{ IA, SERE };
+
+// Config types
+enum ConfigFormat{ ia_and_sere, config };
+
+// Config parameters
+struct configInfo
+{
+	// Containers for the information received from IA configuration
+    vector_string initState;
+  vector_string acceptingStates;
+  vector_string allStates;
+  vector_string inputSignals;
+  vector_string outputSignals;
+  vector_string internalSignals;
+  vector_string transitions;
+
+	// Containers for the information received from SERE configuration
+	vector_string rules;
+};
 
 
 // NOTE: Let's talk signals. At the time, IA config takes the
@@ -292,25 +309,39 @@ typedef vector<transition> transition_set;
 
 
 //**********************
+//  Read Config
+//**********************
+
+extern void readConfig(char *filename_IA,
+											 char *filename_SERE,
+											 char *filename_Config,
+											 ConfigFormat configFormat,
+										 	 configInfo &config_info);
+
+extern void readIAFile(char *filename, configInfo &config_info);
+
+extern void readSEREFile(char *filename, configInfo &config_info);
+
+extern void readConfigFile(char *filename, configInfo &config_info);
+
+
+//**********************
 //  IA Configuration
 //**********************
 
-extern void processIAConfiguration(char *filename_IA,
-                                  //  char *filename_IA_System,
-                                   state_set *stateSet,
-                                   signal_set *signalSet,
-                                   transition_set *transitionSet);
+extern void processIAConfiguration(state_set *stateSet,
+																	 signal_set *signalSet,
+																 	 transition_set *transitionSet,
+																 	 configInfo config_info);
 
-extern void readIAConfig(char *filename,
-                         vector_string *initState,
-                         vector_string *acceptingStates,
-                         vector_string *allStates,
-                         vector_string *inputSignals,
-                         vector_string *outputSignals,
-                         vector_string *interalSignals,
-                         vector_string *transitions);
-
-extern string removeComment(string element);
+// extern void readIAConfig(char *filename,
+//                          vector_string *initState,
+//                          vector_string *acceptingStates,
+//                          vector_string *allStates,
+//                          vector_string *inputSignals,
+//                          vector_string *outputSignals,
+//                          vector_string *interalSignals,
+//                          vector_string *transitions);
 
 extern void processStates(vector_string initState,
                           vector_string acceptingStates,
@@ -322,21 +353,24 @@ extern void processSignals(vector_string inputSignals,
                            vector_string interalSignals,
                            signal_set *signalSet);
 
+extern string removeComment(string element);
+
 void printStateInfo(state state);
 void printSignalInfo(componentSignal signal);
 void printTransitionInfo(transition transition);
+
 
 //**********************
 //  SERE Configuration
 //**********************
 #include "automaton.h"
 
-extern void processSEREConfiguration(char *filename_SERE,
-                                     vector<state_set> *stateSets,
-                                     vector<signal_set> *signalSets,
-                                     vector<transition_set> *transitionSets);
+extern void processSEREConfiguration(vector<state_set> *stateSets,
+																		 vector<signal_set> *signalSets,
+																	 	 vector<transition_set> *transitionSets,
+																	 	 configInfo config_info);
 
-extern void readSEREConfig(char *filename, vector_string *rules);
+// extern void readSEREConfig(char *filename, vector_string *rules);
 
 extern void processSERE(vector_string rules,
                         vector_string *hoaRuleOutputFiles,
@@ -366,6 +400,7 @@ extern void processTransitions(vector_string transitions,
                                signal_set *signalSet,
                                transition_set *transitionSet,
                                AutomataType automataType);
+
 
 //**********************
 //  Sandbox generation

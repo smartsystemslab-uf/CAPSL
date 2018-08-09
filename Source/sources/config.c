@@ -19,52 +19,34 @@ using namespace std;
 typedef vector<automaton> automatonSet;
 
 
-void processIAConfiguration(char *filename_IA,
-                            // char *filename_IA_System,
-                            state_set *stateSet,
-                            signal_set *signalSet,
-                            transition_set *transitionSet)
+//*****************
+//      FILE
+//*****************
 
+// Read config info from ia/sere/config files
+void readConfig(char *filename_IA,
+								char *filename_SERE,
+								char *filename_Config,
+								ConfigFormat configFormat,
+							 	configInfo &config_info)
 {
-  // Containers for the information retreived from config file
-  vector_string initState;
-  vector_string acceptingStates;
-  vector_string allStates;
-  vector_string inputSignals;
-  vector_string outputSignals;
-  vector_string interalSignals;
-  vector_string transitions;
+	// configure using .ia and .sere format
+	if (configFormat == ia_and_sere)
+	{
+		readIAFile(filename_IA, config_info);
 
-  // Read from the IA configuration file
-  readIAConfig(filename_IA,
-               &initState,
-               &acceptingStates,
-               &allStates,
-               &inputSignals,
-               &outputSignals,
-               &interalSignals,
-               &transitions);
-
-  // Populate stateSet
-  processStates(initState, acceptingStates, allStates, stateSet);
-
-  // Populate signalSet
-  processSignals(inputSignals, outputSignals, interalSignals, signalSet);
-
-  // Populate transitionSet
-  processTransitions(transitions, stateSet, signalSet, transitionSet, AutomataType::IA);
+	 	readSEREFile(filename_SERE, config_info);
+	}
+	// configure using .config format
+	else
+	{
+		readConfigFile(filename_Config, config_info);
+	}
 }
 
 
-// Parse through IA configuration file to extract the relavant info
-void readIAConfig(char *filename,
-                  vector_string *initState,
-                  vector_string *acceptingStates,
-                  vector_string *allStates,
-                  vector_string *inputSignals,
-                  vector_string *outputSignals,
-                  vector_string *internalSignals,
-                  vector_string *transitions)
+// Read from IA file
+void readIAFile(char *filename, configInfo &config_info)
 {
   // Open the file
   ifstream configFile(filename);
@@ -73,6 +55,15 @@ void readIAConfig(char *filename,
     cerr << "\nUnable to open IA configuration file \n";
     // exit(0);
   }
+
+	// Containers for IA specifications
+	vector_string initState;
+  vector_string acceptingStates;
+  vector_string allStates;
+  vector_string inputSignals;
+  vector_string outputSignals;
+  vector_string internalSignals;
+  vector_string transitions;
 
   // Tokens
   string stateToken             = "DEFINE STATES";
@@ -113,7 +104,7 @@ void readIAConfig(char *filename,
             if(!state.empty())
             {
               // cout << "STATE: " << removeComment(state) << "\n";
-              allStates->push_back(removeComment(state));
+              allStates.push_back(removeComment(state));
             }
           }
           else
@@ -132,7 +123,7 @@ void readIAConfig(char *filename,
             if(!initialState.empty())
             {
               // cout << "INIT STATE: " << removeComment(initialState) << "\n";
-              initState->push_back(removeComment(initialState));
+              initState.push_back(removeComment(initialState));
             }
           }
           else
@@ -151,7 +142,7 @@ void readIAConfig(char *filename,
             if(!acceptState.empty())
             {
               // cout << "ACCEPTING STATE: " << removeComment(acceptState) << "\n";
-              acceptingStates->push_back(removeComment(acceptState));
+              acceptingStates.push_back(removeComment(acceptState));
             }
           }
           else
@@ -170,7 +161,7 @@ void readIAConfig(char *filename,
             if(!componentSignal.empty())
             {
               // cout << "INPUT ACTION: " << removeComment(componentSignal) << "\n";
-              inputSignals->push_back(removeComment(componentSignal));
+              inputSignals.push_back(removeComment(componentSignal));
             }
           }
           else
@@ -189,7 +180,7 @@ void readIAConfig(char *filename,
             if(!componentSignal.empty())
             {
               // cout << "OUTPUT ACTION: " << removeComment(componentSignal) << "\n";
-              outputSignals->push_back(removeComment(componentSignal));
+              outputSignals.push_back(removeComment(componentSignal));
             }
           }
           else
@@ -208,7 +199,7 @@ void readIAConfig(char *filename,
             if(!componentSignal.empty())
             {
               // cout << "INTERNAL ACTION: " << removeComment(componentSignal) << "\n";
-              internalSignals->push_back(removeComment(componentSignal));
+              internalSignals.push_back(removeComment(componentSignal));
             }
           }
           else
@@ -227,7 +218,7 @@ void readIAConfig(char *filename,
             if(!transition.empty())
             {
               // cout << "TRANSITION: " << removeComment(transition) << "\n";
-              transitions->push_back(removeComment(transition));
+              transitions.push_back(removeComment(transition));
             }
           }
           else
@@ -238,6 +229,92 @@ void readIAConfig(char *filename,
   }
 
   configFile.close();
+
+	// Store containers in configInfo struct
+	config_info.initState = initState;
+	config_info.acceptingStates = acceptingStates;
+	config_info.allStates = allStates;
+	config_info.inputSignals = inputSignals;
+	config_info.outputSignals = outputSignals;
+	config_info.internalSignals = internalSignals;
+	config_info.transitions = transitions;
+}
+
+
+// Read from SERE file
+void readSEREFile(char *filename, configInfo &config_info)
+{
+	// Container for SERE specifications
+	vector_string rules;
+
+  // Open the configuration file
+  ifstream configFile(filename);
+  if(!configFile)
+  {
+    cerr << "\nUnable to open SERE configuration file \n";
+    // exit(0);
+  }
+
+  // Read in the SERE expressions
+  string line;
+  int ruleCount = 0;
+
+  while(getline(configFile, line))
+  {
+    // Get all non empty lines
+    if(!removeComment(line).empty())
+    {
+      // cout << "\nRule" << ruleCount << ":\n  " << removeComment(line) << endl;
+      rules.push_back(removeComment(line));
+
+      // Keep count
+      ruleCount++;
+    }
+  }
+
+  // Close the file
+  configFile.close();
+
+	// Store container in config_info
+	config_info.rules = rules;
+}
+
+
+// Read from Config file
+void readConfigFile(char *filename, configInfo &config_info)
+{
+	// TODO
+}
+
+
+
+//*****************
+//       IA
+//*****************
+
+// Process the IA specification
+void processIAConfiguration(state_set *stateSet,
+                            signal_set *signalSet,
+                            transition_set *transitionSet,
+														configInfo config_info)
+{
+  // Containers for the IA specifications in config_info
+  vector_string initState = config_info.initState;
+  vector_string acceptingStates = config_info.acceptingStates;
+  vector_string allStates = config_info.allStates;
+  vector_string inputSignals = config_info.inputSignals;
+  vector_string outputSignals = config_info.outputSignals;
+  vector_string internalSignals = config_info.internalSignals;
+  vector_string transitions = config_info.transitions;
+
+  // Populate stateSet
+  processStates(initState, acceptingStates, allStates, stateSet);
+
+  // Populate signalSet
+  processSignals(inputSignals, outputSignals, internalSignals, signalSet);
+
+  // Populate transitionSet
+  processTransitions(transitions, stateSet, signalSet, transitionSet, AutomataType::IA);
 }
 
 
@@ -995,21 +1072,23 @@ void processTransitions(vector_string transitions,
 }
 
 
+
+//*****************
+//      SERE
+//*****************
+
 // Process the SERE specification
-void processSEREConfiguration(char *filename_SERE,
-                              vector<state_set> *stateSets,
+void processSEREConfiguration(vector<state_set> *stateSets,
                               vector<signal_set> *signalSets,
-                              vector<transition_set> *transitionSets)
+                              vector<transition_set> *transitionSets,
+															configInfo config_info)
 {
-  // Containers for the information retreived from config file
-  vector_string rules;
+  // Containers for SERE specifications in config_info
+  vector_string rules = config_info.rules;
 
   // Hold the filenames produced for easy access
   vector_string hoaRuleOutputFiles;
   vector_string dotRuleOutputFiles;
-
-  // Read from the SERE configuration file
-  readSEREConfig(filename_SERE, &rules);
 
   // Process the retreived rules - output automatas for each
   processSERE(rules, &hoaRuleOutputFiles, &dotRuleOutputFiles);
@@ -1048,39 +1127,6 @@ void processSEREConfiguration(char *filename_SERE,
     signalSets->push_back(signalSet);
     transitionSets->push_back(transitionSet);
   }
-}
-
-
-// Read the SERE specifications
-void readSEREConfig(char *filename, vector_string *rules)
-{
-  // Open the configuration file
-  ifstream configFile(filename);
-  if(!configFile)
-  {
-    cerr << "\nUnable to open SERE configuration file \n";
-    // exit(0);
-  }
-
-  // Read in the SERE expressions
-  string line;
-  int ruleCount = 0;
-
-  while(getline(configFile, line))
-  {
-    // Get all non empty lines
-    if(!removeComment(line).empty())
-    {
-      // cout << "\nRule" << ruleCount << ":\n  " << removeComment(line) << endl;
-      rules->push_back(removeComment(line));
-
-      // Keep count
-      ruleCount++;
-    }
-  }
-
-  // Close the file
-  configFile.close();
 }
 
 
@@ -1363,6 +1409,11 @@ void processSignals(vector_string signals,
   }
 }
 
+
+
+//*****************
+//      MISC
+//*****************
 
 // Removes the optional comments from the configuration elements
 string removeComment(string element)

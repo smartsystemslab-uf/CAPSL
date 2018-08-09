@@ -3,3 +3,6 @@
 
 // Ignore .tags file for atom 
 .tags
+
+// Ignore CMakeLists.txt for CLion
+CMakeLists.txt
