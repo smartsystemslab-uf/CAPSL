@@ -13,6 +13,7 @@
 
 #include "automaton.h"
 #include "global.h"
+
 using namespace std;
 
 
@@ -24,9 +25,9 @@ typedef vector<automaton> automatonSet;
 //*****************
 
 // Read config info from ia/sere/config files
-void readConfig(char *filename_IA,
-								char *filename_SERE,
-								char *filename_Config,
+void readConfig(const char *filename_IA,
+								const char *filename_SERE,
+								const char *filename_Config,
 								ConfigFormat configFormat,
 							 	configInfo &config_info)
 {
@@ -44,9 +45,224 @@ void readConfig(char *filename_IA,
 	}
 }
 
+// Read from Config file
+void readConfigFile(const char *filename, configInfo &config_info)
+{
+	ifstream configFile(filename);
+	if (!configFile)
+	{
+		cerr << "\nUnable to open config file \n";
+		// exit(0);
+	}
+
+	// Get IP Name from filename
+	string strFilename(filename);
+	// Ex: config/BasicRSA/BasicRSA.config
+	// extract the substr between the '/' characters
+	size_t start = strFilename.find_first_of("/");
+	size_t end = strFilename.find_last_of("/");
+	string IPName = strFilename.substr( start + 1,  end - start - 1);		// Extract
+
+	// Tokens
+	string IPDefToken           = IPName + ".def";
+	string logicDefToken        = "logic.def";
+	string systemDefToken       = "system.def";
+
+	string transitionsToken     = "transitions";
+	string resourcesToken       = "resources";
+	string prohibitedToken      = "prohibited";
+	string counterToken         = "counter";
+
+
+	string line;
+	while (getline(configFile, line))
+	{
+		// Remove comments from line
+		line = removeComment(line);
+
+		// Skip empty lines
+		if (line.empty())
+		{
+			continue;
+		}
+
+
+		// **************
+		// <IP_Name>.def
+		// **************
+		if (line.find(IPDefToken) != string::npos)
+		{
+			cout << IPDefToken << endl;
+			while (getline(configFile, line))
+			{
+				// remove comments, skip empty lines
+				line = removeComment(line);
+				if (line.empty())
+					continue;
+
+				// {
+				if (line.find("}") != string::npos)
+					break;
+
+				// transitions{
+				if (line.find(transitionsToken) != string::npos)
+				{
+					cout << "\n\ntransitions{";
+					while (getline(configFile, line))
+					{
+						// remove comments, skip empty lines
+						line = removeComment(line);
+						if (line.empty())
+							continue;
+
+						// }
+						if (line.find("}") != string::npos)
+							break;
+
+						// handle transitions
+						cout << endl << line;
+					}
+					cout << "}" << endl;
+				}
+
+				// resources{
+				if (line.find(resourcesToken) != string::npos)
+				{
+					cout << "\n\nresources{";
+					while (getline(configFile, line))
+					{
+						// remove comments, skip empty lines
+						line = removeComment(line);
+						if (line.empty())
+							continue;
+
+						// }
+						if (line.find("}") != string::npos)
+							break;
+
+						// handle each resource
+						cout << endl << line;
+					}
+					cout << "}" << endl;
+				}
+
+				// handle each signal
+				cout << endl << "signal:\t" << line;
+			}
+		}
+
+
+		// **************
+		// system.def
+		// **************
+		if (line.find(systemDefToken) != string::npos)
+		{
+			cout << systemDefToken << endl;
+			while (getline(configFile, line))
+			{
+				// remove comments, skip empty lines
+				line = removeComment(line);
+				if (line.empty())
+					continue;
+
+				// {
+				if (line.find("}") != string::npos)
+					break;
+
+				// transitions{
+				if (line.find(transitionsToken) != string::npos)
+				{
+					cout << "\n\ntransitions{";
+					while (getline(configFile, line))
+					{
+						// remove comments, skip empty lines
+						line = removeComment(line);
+						if (line.empty())
+							continue;
+
+						// }
+						if (line.find("}") != string::npos)
+							break;
+
+						// handle transitions
+						cout << endl << line;
+					}
+					cout << "}" << endl;
+				}
+
+				// handle each signal
+				cout << endl << "system:\t" << line;
+			}
+		}
+
+
+		// **************
+		// logic.def
+		// **************
+		if (line.find(logicDefToken) != string::npos)
+		{
+			cout << logicDefToken << endl;
+			while (getline(configFile, line))
+			{
+				// remove comments, skip empty lines
+				line = removeComment(line);
+				if (line.empty()) { continue; }
+
+				// {
+				if (line.find("}") != string::npos)
+					break;
+
+				// counter {
+				if (line.find(counterToken) != string::npos)
+				{
+					cout << "\n\ncounter{";
+					while (getline(configFile, line))
+					{
+						// remove comments, skip empty lines
+						line = removeComment(line);
+						if (line.empty())
+							continue;
+ 
+						// }
+						if (line.find("}") != string::npos)
+							break;
+
+						// handle transitions
+						cout << endl << line;
+					}
+					cout << "}" << endl;
+				}
+
+				// prohibited{
+				if (line.find(prohibitedToken) != string::npos)
+				{
+					cout << "\n\nprohibited{";
+					while (getline(configFile, line))
+					{
+						// remove comments, skip empty lines
+						line = removeComment(line);
+						if (line.empty())
+							continue;
+
+						// }
+						if (line.find("}") == 0)
+							break;
+
+						// handle each prohibition
+						cout << endl << line;
+					}
+					cout << "}" << endl;
+				}
+
+				// handle each signal
+				cout << endl << "logic:\t" << line;
+			}
+		}
+	}
+}
 
 // Read from IA file
-void readIAFile(char *filename, configInfo &config_info)
+void readIAFile(const char *filename, configInfo &config_info)
 {
   // Open the file
   ifstream configFile(filename);
@@ -68,7 +284,7 @@ void readIAFile(char *filename, configInfo &config_info)
   // Tokens
   string stateToken             = "DEFINE STATES";
   string initToken              = "DEFINE INITIAL";
-  string aceptingToken          = "DEFINE ACCEPTING";
+  string acceptingToken         = "DEFINE ACCEPTING";
   string inputToken             = "DEFINE INPUTS";
   string outputToken            = "DEFINE OUTPUTS";
   string internalToken          = "DEFINE INTERNALS";
@@ -76,7 +292,7 @@ void readIAFile(char *filename, configInfo &config_info)
 
   string stateEndToken          = "END STATES";
   string initEndToken           = "END INITIAL";
-  string aceptingEndToken       = "END ACCEPTING";
+  string acceptingEndToken      = "END ACCEPTING";
   string inputsEndToken         = "END INPUTS";
   string outputsEndToken        = "END OUTPUTS";
   string internalsEndToken      = "END INTERNALS";
@@ -132,12 +348,12 @@ void readIAFile(char *filename, configInfo &config_info)
       }
 
       // Extract the accepting states
-      if(line.find(aceptingToken) != std::string::npos)
+      if(line.find(acceptingToken) != std::string::npos)
       {
         string acceptState;
         while(getline(configFile, acceptState))
         {
-          if(acceptState.find(aceptingEndToken) == std::string::npos)
+          if(acceptState.find(acceptingEndToken) == std::string::npos)
           {
             if(!acceptState.empty())
             {
@@ -242,7 +458,7 @@ void readIAFile(char *filename, configInfo &config_info)
 
 
 // Read from SERE file
-void readSEREFile(char *filename, configInfo &config_info)
+void readSEREFile(const char *filename, configInfo &config_info)
 {
 	// Container for SERE specifications
 	vector_string rules;
@@ -277,13 +493,6 @@ void readSEREFile(char *filename, configInfo &config_info)
 
 	// Store container in config_info
 	config_info.rules = rules;
-}
-
-
-// Read from Config file
-void readConfigFile(char *filename, configInfo &config_info)
-{
-	// TODO
 }
 
 

@@ -134,10 +134,10 @@ int main(int argc, char **argv)
 				break;
 
 			// TODO add this once config file is supported
-			// case 'c':
-			// 	// use .config instead of .ia and .sere
-			// 	configFormat = ConfigFormat::config;
-			// 	break;
+			case 'c':
+				// use .config instead of .ia and .sere
+				configFormat = ConfigFormat::config;
+				break;
 
 			default:
 				cerr << "capsl: illegal option -- \'" << *options << "\'" << endl;
@@ -240,7 +240,8 @@ int main(int argc, char **argv)
 					 	 configFormat,
 					 	 config_info);
 
-
+	cout << "done reading" << endl;
+	exit(0);
   //*****************
   //       IA
   //*****************

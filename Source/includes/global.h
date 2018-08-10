@@ -312,17 +312,17 @@ typedef vector<transition> transition_set;
 //  Read Config
 //**********************
 
-extern void readConfig(char *filename_IA,
-											 char *filename_SERE,
-											 char *filename_Config,
+extern void readConfig(const char *filename_IA,
+											 const char *filename_SERE,
+											 const char *filename_Config,
 											 ConfigFormat configFormat,
 										 	 configInfo &config_info);
 
-extern void readIAFile(char *filename, configInfo &config_info);
+extern void readIAFile(const char *filename, configInfo &config_info);
 
-extern void readSEREFile(char *filename, configInfo &config_info);
+extern void readSEREFile(const char *filename, configInfo &config_info);
 
-extern void readConfigFile(char *filename, configInfo &config_info);
+extern void readConfigFile(const char *filename, configInfo &config_info);
 
 
 //**********************
