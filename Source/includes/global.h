@@ -354,6 +354,7 @@ extern void processSignals(vector_string inputSignals,
                            signal_set *signalSet);
 
 extern string removeComment(string element);
+extern string extractUntil(string element, string delimiter);
 
 void printStateInfo(state state);
 void printSignalInfo(componentSignal signal);
