@@ -1,8 +1,10 @@
 // Remove Mac Filesystem Residue
 .DS_Store
 
-// Ignore .tags file for atom 
+// Ignore .tags file for atom
 .tags
 
-// Ignore CMakeLists.txt for CLion
+// Ignore CLion/cmake
 CMakeLists.txt
+.idea
+cmake-build-debug

@@ -20,6 +20,9 @@ class automaton
 
     state_set       illegalStates;   // All illegal states
 
+		// Print flag
+		bool printFlag;		// true if functions should print as debug
+
 
     // Constructor given set of states, signals, and transitions
     automaton(state_set states, signal_set signals, transition_set transitions);

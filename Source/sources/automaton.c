@@ -6,6 +6,9 @@ using namespace std;
 // Constructor given set of states, signals, and transitions
 automaton::automaton(state_set states, signal_set signals, transition_set transitions)
 {
+	// print flag for debug
+	this->printFlag = false;
+
   // Set local data
   this->stateSet       = states;
   this->signalSet      = signals;
@@ -29,6 +32,9 @@ automaton::automaton(state_set states, signal_set signals, transition_set transi
 // Constructor given two existing automata
 automaton::automaton(automaton A, automaton B)
 {
+	// print flag for debug
+	this->printFlag = false;
+
   // NOTE
   // This constructor is called for composition of two automata
   // These methods are defined in the Alfaro Interface Automata paper.
@@ -214,14 +220,17 @@ void automaton::buildTransitionTable(state_set stateSet, signal_set signalSet, t
 
   }
 
-  printTransitionTable(signalSet, stateSet, (*transTable));
+	if (printFlag)
+	{
+		printTransitionTable(signalSet, stateSet, (*transTable));
+	}
 }
 
 
 // Prints the transition table
 void automaton::printTransitionTable(signal_set signalSet, state_set stateSet, table transitionTable)
 {
-  cout << "\nTransition table\n";
+  cout << "\n*** Transition table ***\n";
 
   // Print a legend for signal/state name and indexes
   cout << "  Legend:" << endl;
@@ -718,8 +727,11 @@ void automaton::resolveSignals(signal_set referenceSignals)
   }
 
   // Print the new trans table
-  cout << "Resolved transition table:" << endl;
-  this->printTransitionTable(this->signalSet, this->stateSet, this->transitionTable);
+	if (printFlag)
+	{
+		cout << "[Resolved]";
+	  this->printTransitionTable(this->signalSet, this->stateSet, this->transitionTable);
+	}
 }
 
 

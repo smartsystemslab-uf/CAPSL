@@ -228,6 +228,7 @@ int main(int argc, char **argv)
 	//*****************
   //   Read Config
   //*****************
+	cout << endl << "***** Begin Configuration *****" << endl << endl;
 
 	// Define a container for all of the information to be
 	// retrieved from the ia/sere/config files
@@ -240,11 +241,13 @@ int main(int argc, char **argv)
 					 	 configFormat,
 					 	 config_info);
 
-	cout << "done reading" << endl;
-	exit(0);
+  cout << endl << "***** Configuration finished *****" << endl << endl;
+
+
   //*****************
   //       IA
   //*****************
+	cout << endl << "***** Begin IA processing *****" << endl << endl;
 
   // Component IA configuration will be stored in these containers
   //  to be passed to automaton
@@ -265,65 +268,11 @@ int main(int argc, char **argv)
   addAndComposeAutomaton(componentIA, &allAutomata);
   cout << endl;
 
+  // Component2 IA configuration will be stored in these containers
 
-  // // Component2 IA configuration will be stored in these containers
-  // //  to be passed to automaton
-  // state_set stateSet_IA_Component2;
-  // signal_set signalSet_IA_Component2;
-  // transition_set transitionSet_IA_Component2;
-  //
-  // processIAConfiguration(configFileName_IA_Component2,
-  //                        &stateSet_IA_Component2,
-  //                        &signalSet_IA_Component2,
-  //                        &transitionSet_IA_Component2);
-  //
-  // cout << "Building Component2 Interface..." << endl;
-  // automaton componentIA2(stateSet_IA_Component2, signalSet_IA_Component2, transitionSet_IA_Component2);
-  //
-  // // Add to the automata set
-  // cout << "Adding Component2 automata to set..." << endl;
-  // addAndComposeAutomaton(componentIA2, &allAutomata);
-  // cout << endl;
+  // Component3 IA configuration will be stored in these containers
 
-
-  // // Component3 IA configuration will be stored in these containers
-  // //  to be passed to automaton
-  // state_set stateSet_IA_Component3;
-  // signal_set signalSet_IA_Component3;
-  // transition_set transitionSet_IA_Component3;
-  //
-  // processIAConfiguration(configFileName_IA_Component3,
-  //                        &stateSet_IA_Component3,
-  //                        &signalSet_IA_Component3,
-  //                        &transitionSet_IA_Component3);
-  //
-  // cout << "Building Component3 Interface..." << endl;
-  // automaton componentIA3(stateSet_IA_Component3, signalSet_IA_Component3, transitionSet_IA_Component3);
-  //
-  // // Add to the automata set
-  // cout << "Adding Component3 automata to set..." << endl;
-  // addAndComposeAutomaton(componentIA3, &allAutomata);
-  // cout << endl;
-
-
-  // // System IA configuration will stored in these containers
-  // //  to be passed to automaton
-  // state_set stateSet_IA_System;
-  // signal_set signalSet_IA_System;
-  // transition_set transitionSet_IA_System;
-  //
-  // processIAConfiguration(configFileName_IA_System,
-  //                        &stateSet_IA_System,
-  //                        &signalSet_IA_System,
-  //                        &transitionSet_IA_System);
-  //
-  // cout << "Building System Interface..." << endl;
-  // automaton systemIA(stateSet_IA_System, signalSet_IA_System, transitionSet_IA_System);
-  //
-  // // Add to the automata set
-  // cout << "Adding System automata to set..." << endl;
-  // addAndComposeAutomaton(systemIA, &allAutomata);
-  // cout << endl;
+  // System IA configuration will stored in these containers
 
 
   // NOTE
@@ -332,15 +281,19 @@ int main(int argc, char **argv)
   //    resolving the signals that are not given a type
   //  These are also used for setting the input and output signals for the checkers
   signal_set referenceSignalSet = allAutomata[0].signalSet;
-  // for(int i = 0; i < referenceSignalSet.size(); i++)
-  // {
-  //   printSignalInfo(referenceSignalSet[i]);
-  // }
 
+	// Print signal info
+	cout << "Signal Info:" << endl;
+  for(int i = 0; i < referenceSignalSet.size(); i++)
+  {
+    printSignalInfo(referenceSignalSet[i]);
+  }
+	cout << endl << "***** IA processing finished *****" << endl << endl;
 
   //*****************
   //      SERE
   //*****************
+	cout << endl << "***** Begin SERE processing *****" << endl << endl;
 
   // Component SERE configuration will stored in these containers
   //  to be passed to automaton encompassing all rules
@@ -371,6 +324,7 @@ int main(int argc, char **argv)
 		cout << endl << "********************" << endl << endl;
 
   }
+	cout << endl << "***** SERE processing finished *****" << endl << endl;
 
 
   // TODO
@@ -418,3 +372,66 @@ int main(int argc, char **argv)
   //  type is determined by finalDesignType
   // componentIA.generateAutomatonModule(finalDesignType);
 }
+
+
+
+// See Automata interface construction
+
+// // Component2 IA configuration will be stored in these containers
+// //  to be passed to automaton
+// state_set stateSet_IA_Component2;
+// signal_set signalSet_IA_Component2;
+// transition_set transitionSet_IA_Component2;
+//
+// processIAConfiguration(configFileName_IA_Component2,
+//                        &stateSet_IA_Component2,
+//                        &signalSet_IA_Component2,
+//                        &transitionSet_IA_Component2);
+//
+// cout << "Building Component2 Interface..." << endl;
+// automaton componentIA2(stateSet_IA_Component2, signalSet_IA_Component2, transitionSet_IA_Component2);
+//
+// // Add to the automata set
+// cout << "Adding Component2 automata to set..." << endl;
+// addAndComposeAutomaton(componentIA2, &allAutomata);
+// cout << endl;
+
+
+// // Component3 IA configuration will be stored in these containers
+// //  to be passed to automaton
+// state_set stateSet_IA_Component3;
+// signal_set signalSet_IA_Component3;
+// transition_set transitionSet_IA_Component3;
+//
+// processIAConfiguration(configFileName_IA_Component3,
+//                        &stateSet_IA_Component3,
+//                        &signalSet_IA_Component3,
+//                        &transitionSet_IA_Component3);
+//
+// cout << "Building Component3 Interface..." << endl;
+// automaton componentIA3(stateSet_IA_Component3, signalSet_IA_Component3, transitionSet_IA_Component3);
+//
+// // Add to the automata set
+// cout << "Adding Component3 automata to set..." << endl;
+// addAndComposeAutomaton(componentIA3, &allAutomata);
+// cout << endl;
+
+
+// // System IA configuration will stored in these containers
+// //  to be passed to automaton
+// state_set stateSet_IA_System;
+// signal_set signalSet_IA_System;
+// transition_set transitionSet_IA_System;
+//
+// processIAConfiguration(configFileName_IA_System,
+//                        &stateSet_IA_System,
+//                        &signalSet_IA_System,
+//                        &transitionSet_IA_System);
+//
+// cout << "Building System Interface..." << endl;
+// automaton systemIA(stateSet_IA_System, signalSet_IA_System, transitionSet_IA_System);
+//
+// // Add to the automata set
+// cout << "Adding System automata to set..." << endl;
+// addAndComposeAutomaton(systemIA, &allAutomata);
+// cout << endl;

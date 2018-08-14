@@ -85,11 +85,13 @@ void generateChecker(signal_set referenceSignalSet, automatonSet allAutomata)
   // Create EndStateDetections port
   //  This port size is determined by the number of accepting states specified
   //  in the IA configuration
+	vhdl_out << "	-- numAcceptingStates = " << numAcceptingStates << endl;
   if(numAcceptingStates != 0)
   {
     vhdl_out << "\t\tEndStateDetections      : out std_logic_vector(" << numAcceptingStates-1 << " downto 0);\t-- End state detections are asserted via this port" << endl;
   }
 
+	vhdl_out << " -- numIllegalStates = " << numIllegalStates << endl;
   if(numIllegalStates != 0)
   {
     // Create IllegalStateDetections port

@@ -97,14 +97,9 @@ void readConfigFile(const char *filename, configInfo &config_info)
 	string line;
 	while (getline(configFile, line))
 	{
-		// Remove comments from line
-		line = removeComment(line);
-
 		// Skip empty lines
 		if (line.empty())
-		{
 			continue;
-		}
 
 
 		// **************
@@ -112,16 +107,14 @@ void readConfigFile(const char *filename, configInfo &config_info)
 		// **************
 		if (line.find(IPDefToken) != string::npos)
 		{
-			cout << IPDefToken << endl;
 			while (getline(configFile, line))
 			{
-				// remove comments, skip empty lines
-				line = removeComment(line);
+				// skip empty lines
 				if (line.empty())
 					continue;
 
-				// }
-				if (line.find("}") != string::npos)
+				// } - end of scope
+				if (removeComment(line).find("}") == 0)
 					break;
 
 				// input signals
@@ -129,6 +122,7 @@ void readConfigFile(const char *filename, configInfo &config_info)
 				{
 					// extract signal name, add it to container
 					inputSignals.push_back(extractUntil(line, ":"));
+					cout << "input: " << extractUntil(line, ":") << endl;
 				}
 
 				// output signals
@@ -136,72 +130,58 @@ void readConfigFile(const char *filename, configInfo &config_info)
 				{
 					// extract signal name, add it to container
 					outputSignals.push_back(extractUntil(line, ":"));
+					cout << "output: " << extractUntil(line, ":") << endl;
 				}
 
 				// transitions{
 				else if (line.find(transitionsToken) != string::npos)
 				{
-					cout << "\n\ntransitions{\n";
 					string transition, state;
 					bool first_transition = true;
-					int i = 0;
 
 					// get remaining states/transitions
 					while (getline(configFile, transition))
 					{
-						// skip empty lines
 						if (transition.empty())
 							continue;
 
-						// }
 						if (transition.find("}") != string::npos)
 							break;
 
 						// extract state from beginning of transition, add to set
-						cout << transition << endl;
 						state = extractUntil(transition, ":");
-						cout << "state: " << state << endl;
-						cout << "size: " << state.size() << endl;
-						cout << transition.find_first_not_of("\t") << endl;
-						cout << transition.find_first_of(":") << endl;
 						allStates.push_back(state);
+
 						// on the first transition, add state to initState
 						if (first_transition)
 						{
 							initState.push_back(state);
+							cout << "INIT STATE: " << state << endl;
 							first_transition = false;
 						}
+						cout << "STATE: " << state << endl;
+
 						// add transition to set
 						transition = extractUntil(removeComment(transition), ",");
 						transitions.push_back(transition);
-
-						cout << "allStates[i]: " << allStates[i] << endl;
-						cout << "transitions[i]: " << transitions[i] << endl;
-						cout << endl;
-						i++;
+						cout << "TRANSITION: " << transition << endl;
 					}
-					cout << "}" << endl;
 				}
 
 				// resources{
 				else if (line.find(resourcesToken) != string::npos)
 				{
-					cout << "\n\nresources{\n";
-					while (getline(configFile, line))
+					string resource;
+					while (getline(configFile, resource))
 					{
-						// remove comments, skip empty lines
-						line = removeComment(line);
-						if (line.empty())
+						if (resource.empty())
 							continue;
 
-						// }
-						if (line.find("}") != string::npos)
+						if (resource.find("}") != string::npos)
 							break;
 
-						// handle each resource
-						// TODO
+						// TODO handle each resource
 					}
-					cout << "}" << endl;
 				}
 			}
 		}
@@ -212,41 +192,30 @@ void readConfigFile(const char *filename, configInfo &config_info)
 		// **************
 		if (line.find(systemDefToken) != string::npos)
 		{
-			cout << systemDefToken << endl;
 			while (getline(configFile, line))
 			{
-				// remove comments, skip empty lines
-				line = removeComment(line);
 				if (line.empty())
 					continue;
 
-				// {
 				if (line.find("}") != string::npos)
 					break;
 
 				// transitions{
 				if (line.find(transitionsToken) != string::npos)
 				{
-					cout << "\n\ntransitions{\n";
 					while (getline(configFile, line))
 					{
-						// remove comments, skip empty lines
-						line = removeComment(line);
 						if (line.empty())
 							continue;
 
-						// }
 						if (line.find("}") != string::npos)
 							break;
 
-						// handle transitions
-						cout << endl << line;
+						// TODO handle transitions
 					}
-					cout << "}" << endl;
 				}
 
-				// handle each signal
-				cout << endl << "system:\t" << line;
+				// TODO handle each signal
 			}
 		}
 
@@ -256,64 +225,66 @@ void readConfigFile(const char *filename, configInfo &config_info)
 		// **************
 		if (line.find(logicDefToken) != string::npos)
 		{
-			cout << logicDefToken << endl;
 			while (getline(configFile, line))
 			{
-				// remove comments, skip empty lines
-				line = removeComment(line);
-				if (line.empty()) { continue; }
+				if (line.empty())
+					continue;
 
-				// {
 				if (line.find("}") != string::npos)
 					break;
 
 				// counter {
 				if (line.find(counterToken) != string::npos)
 				{
-					cout << "\n\ncounter{\n";
 					while (getline(configFile, line))
 					{
-						// remove comments, skip empty lines
-						line = removeComment(line);
 						if (line.empty())
 							continue;
 
-						// }
 						if (line.find("}") != string::npos)
 							break;
 
-						// handle transitions
-						cout << endl << line;
+						// TODO handle transitions
 					}
-					cout << "}" << endl;
 				}
 
 				// prohibited{
 				if (line.find(prohibitedToken) != string::npos)
 				{
-					cout << "\n\nprohibited{\n";
-					while (getline(configFile, line))
+					int ruleCount = 0;
+					string rule;
+					while (getline(configFile, rule))
 					{
-						// remove comments, skip empty lines
-						line = removeComment(line);
-						if (line.empty())
+						if (rule.empty())
 							continue;
+						// remove all comments
+						rule = removeComment(rule);
 
-						// }
-						if (line.find("}") == 0)
+						// } should be the first character on its own line if not part of a rule
+						if (rule.find("}") == 0)
 							break;
 
-						// handle each prohibition
-						cout << endl << line;
+						rules.push_back(extractUntil(rule, ","));
+						cout << "\nRule" << ruleCount << ":"  << endl << "  " << extractUntil(rule, ",") << endl;
+						ruleCount++;
 					}
-					cout << "}" << endl;
 				}
 
-				// handle each signal
-				cout << endl << "logic:\t" << line;
+				// TODO handle each signal
 			}
 		}
 	}
+
+	// pack up the containers and send them back
+	config_info.initState = initState;
+	config_info.acceptingStates = acceptingStates;
+	config_info.allStates = allStates;
+	config_info.inputSignals = inputSignals;
+	config_info.outputSignals = outputSignals;
+	config_info.internalSignals = internalSignals;
+	config_info.transitions = transitions;
+
+	config_info.rules = rules;
 }
 
 // Read from IA file
@@ -374,7 +345,7 @@ void readIAFile(const char *filename, configInfo &config_info)
           {
             if(!state.empty())
             {
-              // cout << "STATE: " << removeComment(state) << "\n";
+              cout << "STATE: " << removeComment(state) << "\n";
               allStates.push_back(removeComment(state));
             }
           }
@@ -393,7 +364,7 @@ void readIAFile(const char *filename, configInfo &config_info)
           {
             if(!initialState.empty())
             {
-              // cout << "INIT STATE: " << removeComment(initialState) << "\n";
+              cout << "INIT STATE: " << removeComment(initialState) << "\n";
               initState.push_back(removeComment(initialState));
             }
           }
@@ -412,7 +383,7 @@ void readIAFile(const char *filename, configInfo &config_info)
           {
             if(!acceptState.empty())
             {
-              // cout << "ACCEPTING STATE: " << removeComment(acceptState) << "\n";
+              cout << "ACCEPTING STATE: " << removeComment(acceptState) << "\n";
               acceptingStates.push_back(removeComment(acceptState));
             }
           }
@@ -431,7 +402,7 @@ void readIAFile(const char *filename, configInfo &config_info)
           {
             if(!componentSignal.empty())
             {
-              // cout << "INPUT ACTION: " << removeComment(componentSignal) << "\n";
+              cout << "INPUT ACTION: " << removeComment(componentSignal) << "\n";
               inputSignals.push_back(removeComment(componentSignal));
             }
           }
@@ -450,7 +421,7 @@ void readIAFile(const char *filename, configInfo &config_info)
           {
             if(!componentSignal.empty())
             {
-              // cout << "OUTPUT ACTION: " << removeComment(componentSignal) << "\n";
+              cout << "OUTPUT ACTION: " << removeComment(componentSignal) << "\n";
               outputSignals.push_back(removeComment(componentSignal));
             }
           }
@@ -469,7 +440,7 @@ void readIAFile(const char *filename, configInfo &config_info)
           {
             if(!componentSignal.empty())
             {
-              // cout << "INTERNAL ACTION: " << removeComment(componentSignal) << "\n";
+              cout << "INTERNAL ACTION: " << removeComment(componentSignal) << "\n";
               internalSignals.push_back(removeComment(componentSignal));
             }
           }
@@ -488,7 +459,7 @@ void readIAFile(const char *filename, configInfo &config_info)
           {
             if(!transition.empty())
             {
-              // cout << "TRANSITION: " << removeComment(transition) << "\n";
+              cout << "TRANSITION: " << removeComment(transition) << "\n";
               transitions.push_back(removeComment(transition));
             }
           }
@@ -535,7 +506,7 @@ void readSEREFile(const char *filename, configInfo &config_info)
     // Get all non empty lines
     if(!removeComment(line).empty())
     {
-      // cout << "\nRule" << ruleCount << ":\n  " << removeComment(line) << endl;
+      cout << "\nRule" << ruleCount << ":\n  " << removeComment(line) << endl;
       rules.push_back(removeComment(line));
 
       // Keep count
@@ -1704,8 +1675,8 @@ string extractUntil(string element, string delimiters)
 
 	string extract = element.substr(start, end - start);
 
-	// removes extra whitespace
-	extract.erase(remove(element.begin(), element.end(), ' '), element.end());
+	// removes extra whitespace from extracted element
+	extract.erase(remove(extract.begin(), extract.end(), ' '), extract.end());
 
 	return extract;
 }
