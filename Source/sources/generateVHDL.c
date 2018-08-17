@@ -34,7 +34,7 @@ void generateChecker(signal_set referenceSignalSet, automatonSet allAutomata)
   //  3. Add final bits of syntax to the file
 
   // Set the output file
-  ofstream vhdl_out("outputs/vhdl/manager.vhd");
+  ofstream vhdl_out("outputs/vhdl/checker.vhd");
 
   // Print header
   vhdl_out << "library IEEE;" << endl;
