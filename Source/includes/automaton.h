@@ -99,5 +99,7 @@ extern void generateSandbox_SystemC(signal_set referenceSignalSet, vector<automa
 
 extern void generateChecker(signal_set referenceSignalSet, vector<automaton> allAutomata);
 
+extern void generateManager(signal_set referenceSignalSet, vector<automaton> allAutomata);
+
 
 #endif

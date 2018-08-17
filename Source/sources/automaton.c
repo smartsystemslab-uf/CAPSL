@@ -9,6 +9,10 @@ automaton::automaton(state_set states, signal_set signals, transition_set transi
 	// print flag for debug
 	this->printFlag = false;
 
+	// Initialize these to 0
+  this->numAcceptingStates = 0;
+  this->numIllegalStates = 0;
+
   // Set local data
   this->stateSet       = states;
   this->signalSet      = signals;

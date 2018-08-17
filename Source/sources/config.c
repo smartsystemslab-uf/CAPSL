@@ -1621,7 +1621,7 @@ void processStates(vector_string initState,
 }
 
 
-// Process the signals from IA configuration into componentSignal structs
+// Process the signals from SERE configuration into componentSignal structs
 void processSignals(vector_string signals,
                     signal_set *signalSet)
 {
