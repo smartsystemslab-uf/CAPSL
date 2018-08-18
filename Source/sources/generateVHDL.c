@@ -177,6 +177,26 @@ void generateManager(signal_set referenceSignalSet, automatonSet allAutomata)
 	vector<string> outputNames;
 	vector<string> signalNames;
 
+	int width = 12;			// default amount of space until (:) or (<=, =>)
+	int buffer = 3;			// minimum amount of space between end of signal and next symbol
+
+	string inputTag = "in_";
+	string outputTag = "out_";
+	string signalTag = "s_";
+
+	// determine width of each statement for vhdl
+	for (int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
+	{
+		if (referenceSignalSet[signalIter].type == input || referenceSignalSet[signalIter].type == output)
+		{
+			if (referenceSignalSet[signalIter].ID.length() > width - buffer)
+			{
+				width = referenceSignalSet[signalIter].ID.length() + buffer;
+			}
+		}
+	}
+
+	//! Begin writing to vhdl file
   // Set the output file
   ofstream vhdl_out("outputs/vhdl/manager.vhd");
 
@@ -195,15 +215,15 @@ void generateManager(signal_set referenceSignalSet, automatonSet allAutomata)
 	vhdl_out << "-- Define the resource manager entity" << endl;
 	vhdl_out << "entity Manager is" << endl;
 	vhdl_out << "\tport(" << endl;
-	vhdl_out << "\t\t" << setw(15) << left << "ControlClock" << " : in  std_logic;\t-- This may not be needed" << endl;
+	vhdl_out << "\t\t" << setw(width) << left << "ControlClock" << ": in  std_logic;\t-- This may not be needed" << endl;
 
 	vhdl_out << endl;
 	vhdl_out << "\t\t-- Checker Ports - in" << endl;
 	// Loop through reference signals and declare inputs (both checker inputs and outputs)
 	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
 	{
-		inputNames.push_back("in_" + referenceSignalSet[signalIter].ID);
-		vhdl_out << "\t\t" << setw(15) << left << inputNames[signalIter] << " : in  std_logic;\t-- Checker "
+		inputNames.push_back(inputTag + referenceSignalSet[signalIter].ID);
+		vhdl_out << "\t\t" << setw(width + inputTag.length()) << left << inputNames[signalIter] << ": in  std_logic;\t-- Checker "
 						 << (referenceSignalSet[signalIter].type == input ? "input" : "output") << endl;
 	}
 
@@ -212,8 +232,8 @@ void generateManager(signal_set referenceSignalSet, automatonSet allAutomata)
 	// Loop through reference signals again and declare outputs (both checker inputs and outputs)
 	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
 	{
-		outputNames.push_back("out_" + referenceSignalSet[signalIter].ID);
-		vhdl_out << "\t\t" << setw(15) << left << outputNames[signalIter] << " : out  std_logic;\t-- Checker "
+		outputNames.push_back(outputTag + referenceSignalSet[signalIter].ID);
+		vhdl_out << "\t\t" << setw(width + outputTag.length()) << left << outputNames[signalIter] << ": out  std_logic;\t-- Checker "
 						 << (referenceSignalSet[signalIter].type == input ? "input" : "output") << endl;
 	}
 
@@ -242,8 +262,8 @@ void generateManager(signal_set referenceSignalSet, automatonSet allAutomata)
 	vhdl_out << "\t--------------------------" << endl;
 	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
 	{
-		signalNames.push_back("s_" + referenceSignalSet[signalIter].ID);
-		vhdl_out << "\tsignal " << setw(15) << left << signalNames[signalIter] << " : std_logic;" << endl;
+		signalNames.push_back(signalTag + referenceSignalSet[signalIter].ID);
+		vhdl_out << "\tsignal " << setw(width + signalTag.length()) << left << signalNames[signalIter] << ": std_logic;" << endl;
 	}
 
   // Add begin statement
@@ -257,7 +277,7 @@ void generateManager(signal_set referenceSignalSet, automatonSet allAutomata)
 	vhdl_out << "\t--------------------------" << endl;
 	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
 	{
-		vhdl_out << "\t" << setw(15) << left << signalNames[signalIter] << " <= " << inputNames[signalIter] << ";" << endl;
+		vhdl_out << "\t" << setw(width + signalTag.length()) << left << signalNames[signalIter] << "<= " << inputNames[signalIter] << ";" << endl;
 	}
 
 	// TODO ?
