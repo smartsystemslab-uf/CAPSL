@@ -195,16 +195,16 @@ void generateManager(signal_set referenceSignalSet, automatonSet allAutomata)
 	vhdl_out << "-- Define the resource manager entity" << endl;
 	vhdl_out << "entity Manager is" << endl;
 	vhdl_out << "\tport(" << endl;
-	vhdl_out << "\t\t" << setw(15) << left << "ControlClock" << " : in  std_logic;\t-- This may not be needed" << endl;
-
+	//vhdl_out << "\t\t" << setw(15) << left << "ControlClock" << " : in  std_logic;\t-- This may not be needed" << endl;
+  vhdl_out << "\t\t" << setw(15) << left << "Controller" << " : in  std_logic;\t-- This signal will be used to control whether IP will be connected through VRM unit or not." << endl;
 	vhdl_out << endl;
 	vhdl_out << "\t\t-- Checker Ports - in" << endl;
 	// Loop through reference signals and declare inputs (both checker inputs and outputs)
 	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
 	{
 		inputNames.push_back("in_" + referenceSignalSet[signalIter].ID);
-		vhdl_out << "\t\t" << setw(15) << left << inputNames[signalIter] << " : in  std_logic;\t-- Checker "
-						 << (referenceSignalSet[signalIter].type == input ? "input" : "output") << endl;
+		vhdl_out << "\t\t" << setw(15) << left << inputNames[signalIter] << " : in  std_logic;\t-- "
+						 << (referenceSignalSet[signalIter].type == input ? "input from Interface" : "input from IP") << endl;
 	}
 
 	vhdl_out << endl;
@@ -212,9 +212,16 @@ void generateManager(signal_set referenceSignalSet, automatonSet allAutomata)
 	// Loop through reference signals again and declare outputs (both checker inputs and outputs)
 	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
 	{
-		outputNames.push_back("out_" + referenceSignalSet[signalIter].ID);
-		vhdl_out << "\t\t" << setw(15) << left << outputNames[signalIter] << " : out  std_logic;\t-- Checker "
-						 << (referenceSignalSet[signalIter].type == input ? "input" : "output") << endl;
+    if (signalIter ==  (referenceSignalSet.size() - 1)){
+		    outputNames.push_back("out_" + referenceSignalSet[signalIter].ID);
+		    vhdl_out << "\t\t" << setw(15) << left << outputNames[signalIter] << " : out  std_logic\t-- "
+						 << (referenceSignalSet[signalIter].type == input ? "output to IP" : "output to Interface") << endl;
+    }
+    else {
+      outputNames.push_back("out_" + referenceSignalSet[signalIter].ID);
+      vhdl_out << "\t\t" << setw(15) << left << outputNames[signalIter] << " : out  std_logic;\t-- "
+           << (referenceSignalSet[signalIter].type == input ? "output to IP" : "output to Interface") << endl;
+    }
 	}
 
   // TODO Other ports???
@@ -265,6 +272,24 @@ void generateManager(signal_set referenceSignalSet, automatonSet allAutomata)
 	vhdl_out << "--TODO - do something else with signals here" << endl;
 	vhdl_out << endl;
 
+  vhdl_out << "\t--------------------------" << endl;
+	vhdl_out << "\t-- Defining output depending on Controller value     " << endl;
+	vhdl_out << "\t--------------------------" << endl;
+
+  vhdl_out << "process(Controller)"<<endl;
+  vhdl_out << "begin" <<endl;
+  vhdl_out <<"\tif Controller = '1' then "<<endl;
+	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
+	{
+		vhdl_out << "\t\t" << setw(15) << left << outputNames[signalIter] << " <= " << signalNames[signalIter] << ";" << endl;
+	}
+  vhdl_out <<"else "<<endl;
+  for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
+	{
+		vhdl_out << "\t\t" << setw(15) << left << outputNames[signalIter] << " <= " << "\'X\'" << ";" << endl;
+	}
+  vhdl_out <<"\tend if;"<<endl;
+  vhdl_out << "end process;" <<endl;
   // Close the architecture declaration
   vhdl_out << "end Behavioral;" << endl;
 }

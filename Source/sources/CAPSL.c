@@ -80,7 +80,9 @@ int main(int argc, char **argv)
 	const char *options;
 	vector<string> flags;
 
-	string configLocation = "config/BasicRSA/BasicRSA";		// use BasicRSA as default
+	//string configLocation = "config/BasicRSA/BasicRSA";		// use BasicRSA as default
+	//string configLocation = "config/AES/AES";
+	string configLocation = "config/RS232/RS232";
 	ConfigFormat configFormat = ia_and_sere;
 
 	// SORT COMMAND LINE ARGUMENTS
@@ -131,6 +133,7 @@ int main(int argc, char **argv)
 			case 'd':
 				// default config
 				configLocation = "config/BasicRSA/BasicRSA";
+				//configLocation = "config/AES/AES";
 				break;
 
 			// TODO add this once config file is supported

@@ -2,8 +2,8 @@ OBJECT_PATH = objects
 INCLUDES_PATH = includes/
 BIN_PATH = .
 
-SPOT_INCLUDES_PATH = /usr/local/include
-SPOT_LIB_PATH = /usr/local/lib
+SPOT_INCLUDES_PATH = /Users/sujansaha/usr/include
+SPOT_LIB_PATH = /Users/sujansaha/usr/lib
 
 OUTPUTS_PATH = outputs
 
