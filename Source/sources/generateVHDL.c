@@ -223,7 +223,8 @@ void generateManager(signal_set referenceSignalSet, automatonSet allAutomata)
 	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
 	{
 		inputNames.push_back(inputTag + referenceSignalSet[signalIter].ID);
-		vhdl_out << "\t\t" << setw(width + inputTag.length()) << left << inputNames[signalIter] << ": in  std_logic;\t-- Checker "
+		vhdl_out << "\t\t" << setw(width + inputTag.length()) << left
+						 << inputNames[signalIter] << ": in  std_logic;\t-- Checker "
 						 << (referenceSignalSet[signalIter].type == input ? "input" : "output") << endl;
 	}
 
@@ -263,7 +264,8 @@ void generateManager(signal_set referenceSignalSet, automatonSet allAutomata)
 	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
 	{
 		signalNames.push_back(signalTag + referenceSignalSet[signalIter].ID);
-		vhdl_out << "\tsignal " << setw(width + signalTag.length()) << left << signalNames[signalIter] << ": std_logic;" << endl;
+		vhdl_out << "\tsignal " << setw(width + signalTag.length()) << left
+						 << signalNames[signalIter] << ": std_logic;" << endl;
 	}
 
   // Add begin statement
@@ -277,7 +279,8 @@ void generateManager(signal_set referenceSignalSet, automatonSet allAutomata)
 	vhdl_out << "\t--------------------------" << endl;
 	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
 	{
-		vhdl_out << "\t" << setw(width + signalTag.length()) << left << signalNames[signalIter] << "<= " << inputNames[signalIter] << ";" << endl;
+		vhdl_out << "\t" << setw(width + signalTag.length()) << left
+						 << signalNames[signalIter] << "<= " << inputNames[signalIter] << ";" << endl;
 	}
 
 	// TODO ?
