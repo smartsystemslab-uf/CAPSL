@@ -184,7 +184,16 @@ void generateManager(signal_set referenceSignalSet, automatonSet allAutomata)
 	string outputTag = "out_";
 	string signalTag = "s_";
 
-	// determine width of each statement for vhdl
+  // remove internal signals from the signal set (VRM does not need them)
+  for (int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
+  {
+    if (referenceSignalSet[signalIter].type == internal)
+    {
+
+    }
+  }
+
+  // determine width of each statement for vhdl
 	for (int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
 	{
 		if (referenceSignalSet[signalIter].type == input || referenceSignalSet[signalIter].type == output)
@@ -215,11 +224,11 @@ void generateManager(signal_set referenceSignalSet, automatonSet allAutomata)
 	vhdl_out << "-- Define the resource manager entity" << endl;
 	vhdl_out << "entity Manager is" << endl;
 	vhdl_out << "\tport(" << endl;
-	vhdl_out << "\t\t" << setw(width) << left << "ControlClock" << ": in  std_logic;\t-- This may not be needed" << endl;
+  vhdl_out << "\t\t" << setw(width) << left << "Controller" << " : in  std_logic;\t-- This signal will be used to control whether IP will be connected through VRM unit or not." << endl;
 
 	vhdl_out << endl;
 	vhdl_out << "\t\t-- Checker Ports - in" << endl;
-	// Loop through reference signals and declare inputs (both checker inputs and outputs)
+	// Loop through reference signals and declare inputs
 	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
 	{
 		inputNames.push_back(inputTag + referenceSignalSet[signalIter].ID);
@@ -230,15 +239,13 @@ void generateManager(signal_set referenceSignalSet, automatonSet allAutomata)
 
 	vhdl_out << endl;
 	vhdl_out << "\t\t-- Checker Ports - out" << endl;
-	// Loop through reference signals again and declare outputs (both checker inputs and outputs)
+	// Loop through reference signals again and declare outputs
 	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
 	{
 		outputNames.push_back(outputTag + referenceSignalSet[signalIter].ID);
 		vhdl_out << "\t\t" << setw(width + outputTag.length()) << left << outputNames[signalIter] << ": out  std_logic;\t-- Checker "
 						 << (referenceSignalSet[signalIter].type == input ? "input" : "output") << endl;
 	}
-
-  // TODO Other ports???
 
   // Finish entity declaration
   vhdl_out << "\t);" << endl;

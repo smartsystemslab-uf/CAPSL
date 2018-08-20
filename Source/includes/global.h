@@ -32,7 +32,7 @@ enum ConfigFormat{ ia_and_sere, config };
 struct configInfo
 {
 	// Containers for the information received from IA configuration
-    vector_string initState;
+  vector_string initState;
   vector_string acceptingStates;
   vector_string allStates;
   vector_string inputSignals;
