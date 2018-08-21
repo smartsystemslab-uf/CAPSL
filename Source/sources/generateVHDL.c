@@ -184,23 +184,24 @@ void generateManager(signal_set referenceSignalSet, automatonSet allAutomata)
 	string outputTag = "out_";
 	string signalTag = "s_";
 
-  // remove internal signals from the signal set (VRM does not need them)
-  for (int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
+	// remove internal signals from the signal set (VRM does not need them)
+	int signalIter = 0;
+  for (auto &signalRef : referenceSignalSet)
   {
-    if (referenceSignalSet[signalIter].type == internal)
+    if (signalRef.type == internal)
     {
-
+			referenceSignalSet.erase(referenceSignalSet.begin() + signalIter);
     }
+	  signalIter++;
   }
 
   // determine width of each statement for vhdl
-	for (int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
-	{
-		if (referenceSignalSet[signalIter].type == input || referenceSignalSet[signalIter].type == output)
+	for (auto &signalRef : referenceSignalSet) {
+		if (signalRef.type == input || signalRef.type == output)
 		{
-			if (referenceSignalSet[signalIter].ID.length() > width - buffer)
+			if (signalRef.ID.length() > width - buffer)
 			{
-				width = referenceSignalSet[signalIter].ID.length() + buffer;
+				width = signalRef.ID.length() + buffer;
 			}
 		}
 	}
@@ -284,16 +285,35 @@ void generateManager(signal_set referenceSignalSet, automatonSet allAutomata)
 	vhdl_out << "\t--------------------------" << endl;
 	vhdl_out << "\t-- Read Checker ports     " << endl;
 	vhdl_out << "\t--------------------------" << endl;
+
 	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
 	{
 		vhdl_out << "\t" << setw(width + signalTag.length()) << left
 						 << signalNames[signalIter] << "<= " << inputNames[signalIter] << ";" << endl;
 	}
 
-	// TODO ?
+	// Define behavior based on Controller signal
 	vhdl_out << endl;
-	vhdl_out << "--TODO - do something else with signals here" << endl;
-	vhdl_out << endl;
+	vhdl_out << "\t--------------------------" << endl;
+	vhdl_out << "\t-- Controller Process     " << endl;
+	vhdl_out << "\t--------------------------" << endl;
+
+  vhdl_out << "process(Controller)" << endl;
+  vhdl_out << "begin" << endl;
+
+  vhdl_out << "\tif Controller = '1' then " << endl;
+	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
+	{
+		vhdl_out << "\t\t" << setw(width + outputTag.length()) << left << outputNames[signalIter] << "<= " << signalNames[signalIter] << ";" << endl;
+	}
+  vhdl_out << "else " << endl;
+  for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
+	{
+		vhdl_out << "\t\t" << setw(width + outputTag.length() << left << outputNames[signalIter] << "<= " << "\'X\'" << ";" << endl;
+	}
+  vhdl_out << "\tend if;" << endl;
+
+  vhdl_out << "end process;" << endl;
 
   // Close the architecture declaration
   vhdl_out << "end Behavioral;" << endl;
