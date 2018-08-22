@@ -19,9 +19,9 @@ void generateSandbox_VHDL(signal_set referenceSignalSet, automatonSet allAutomat
 
 	// Handware Sandbox Module
 	generateHWSandbox(referenceSignalSet, allAutomata);
+
   // TODO
   // Other modules
-
 }
 
 // --------------------------------------
@@ -63,7 +63,7 @@ void generateChecker(signal_set referenceSignalSet, automatonSet allAutomata)
   }
   vhdl_out << endl;
 
-	// Create the manager entity
+	// Create the checker entity
 	vhdl_out << "-- Define the automaton checking entity" << endl;
 	vhdl_out << "entity Checker is" << endl;
 	vhdl_out << "\tport(" << endl;
@@ -192,7 +192,7 @@ void generateManager(signal_set referenceSignalSet, automatonSet allAutomata)
 	int signalIter = 0;
   for (auto &signalRef : referenceSignalSet)
   {
-    if (signalRef.type == internal)
+    if (signalRef.type == signalType::internal)
     {
 			referenceSignalSet.erase(referenceSignalSet.begin() + signalIter);
     }
@@ -201,7 +201,7 @@ void generateManager(signal_set referenceSignalSet, automatonSet allAutomata)
 
   // determine width of each statement for vhdl
 	for (auto &signalRef : referenceSignalSet) {
-		if (signalRef.type == input || signalRef.type == output)
+		if (signalRef.type == signalType::input || signalRef.type == signalType::output)
 		{
 			if (signalRef.ID.length() > width - buffer)
 			{
@@ -229,7 +229,7 @@ void generateManager(signal_set referenceSignalSet, automatonSet allAutomata)
 	vhdl_out << "-- Define the resource manager entity" << endl;
 	vhdl_out << "entity Manager is" << endl;
 	vhdl_out << "\tport(" << endl;
-  vhdl_out << "\t\t" << setw(width) << left << "Controller" << " : in  std_logic;\t-- This signal will be used to control whether IP will be connected through VRM unit or not." << endl;
+  vhdl_out << "\t\t" << setw(width) << left << "Enable" << " : in  std_logic;\t-- This signal will be used to control whether IP will be connected through VRM unit or not. Enable is high when connected." << endl;
 
 	vhdl_out << endl;
 	vhdl_out << "\t\t-- Checker Ports - in" << endl;
@@ -296,22 +296,22 @@ void generateManager(signal_set referenceSignalSet, automatonSet allAutomata)
 	vhdl_out << "\t-- Controller Process     " << endl;
 	vhdl_out << "\t--------------------------" << endl;
 
-  vhdl_out << "process(Controller)" << endl;
-  vhdl_out << "begin" << endl;
+  vhdl_out << "\tprocess(Controller)" << endl;
+  vhdl_out << "\tbegin" << endl;
 
-  vhdl_out << "\tif Controller = '1' then " << endl;
+  vhdl_out << "\t\tif Controller = '1' then " << endl;
 	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
 	{
-		vhdl_out << "\t\t" << setw(width + outputTag.length()) << left << outputNames[signalIter] << "<= " << signalNames[signalIter] << ";" << endl;
+		vhdl_out << "\t\t\t" << setw(width + outputTag.length()) << left << outputNames[signalIter] << "<= " << signalNames[signalIter] << ";" << endl;
 	}
   vhdl_out << "else " << endl;
   for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
 	{
-		vhdl_out << "\t\t" << setw(width + outputTag.length()) << left << outputNames[signalIter] << "<= " << "\'X\'" << ";" << endl;
+		vhdl_out << "\t\t\t" << setw(width + outputTag.length()) << left << outputNames[signalIter] << "<= " << "\'X\'" << ";" << endl;
 	}
-  vhdl_out << "\tend if;" << endl;
+  vhdl_out << "\t\tend if;" << endl;
 
-  vhdl_out << "end process;" << endl;
+  vhdl_out << "\tend process;" << endl;
 
   // Close the architecture declaration
   vhdl_out << "end Behavioral;" << endl;
@@ -329,7 +329,7 @@ void generateHWSandbox(signal_set referenceSignalSet, automatonSet allAutomata)
 	vector<string> outputNames;
 	vector<string> signalNames;
 
-	unsigned long width = 12;			// default amount of space until (:) or (<=, =>)
+	unsigned long width = 10;			// default amount of space until (:) or (<=, =>)
 	unsigned long buffer = 3;			// minimum amount of space between end of signal and next symbol
 
 	string inputTag = "in_";
@@ -340,7 +340,7 @@ void generateHWSandbox(signal_set referenceSignalSet, automatonSet allAutomata)
 	int signalIter = 0;
 	for (auto &signalRef : referenceSignalSet)
 	{
-		if (signalRef.type == internal)
+		if (signalRef.type == signalType::internal)
 		{
 			referenceSignalSet.erase(referenceSignalSet.begin() + signalIter);
 		}
@@ -348,8 +348,9 @@ void generateHWSandbox(signal_set referenceSignalSet, automatonSet allAutomata)
 	}
 
 	// determine width of each statement for vhdl
-	for (auto &signalRef : referenceSignalSet) {
-		if (signalRef.type == input || signalRef.type == output)
+	for (auto &signalRef : referenceSignalSet)
+	{
+		if (signalRef.type == signalType::input || signalRef.type == signalType::output)
 		{
 			if (signalRef.ID.length() > width - buffer)
 			{
@@ -357,6 +358,8 @@ void generateHWSandbox(signal_set referenceSignalSet, automatonSet allAutomata)
 			}
 		}
 	}
+	// add the length of the longest tag
+	width += outputTag.length();
 
 	//! Begin writing to vhdl file
 	// Set the output file
@@ -373,10 +376,10 @@ void generateHWSandbox(signal_set referenceSignalSet, automatonSet allAutomata)
 	vhdl_out << "--  Additional info..." << endl;
 	vhdl_out << endl;
 
-	// Create the sandbox entity
+	//! Create the Sandbox entity
 	vhdl_out << "-- Define the hardware sandbox entity" << endl;
 	vhdl_out << "entity Sandbox is" << endl;
-//	vhdl_out << "\tport(" << endl;
+	vhdl_out << "\tport(" << endl;
 //	vhdl_out << "\t\t" << setw(width) << left << "Controller" << " : in  std_logic;\t-- This signal will be used to control whether IP will be connected through VRM unit or not." << endl;
 //
 //	vhdl_out << endl;
@@ -406,61 +409,102 @@ void generateHWSandbox(signal_set referenceSignalSet, automatonSet allAutomata)
 	vhdl_out << endl;
 
 
-	// Set VHDL file type
-	vhdl_out << "architecture Behavioral of Manager is" << endl;
+	//! Define Architecture
+	vhdl_out << "architecture Behavioral of Sandbox is" << endl;
+	vhdl_out << endl;
+
+	//! Define Components
+	vhdl_out << "\t--------------------------" << endl;
+	vhdl_out << "\t-- Components             " << endl;
+	vhdl_out << "\t--------------------------" << endl;
+
+	// Manager component
+	vhdl_out << "\tcomponent Manager" << endl;
+	vhdl_out << "\t\tport(" << endl;
+	vhdl_out << "\t\t\t" << setw(width) << left << "Enable" << ": in  std_logic;" << endl;
+	// input ports, then output ports
+	for (int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
+	{
+		vhdl_out << "\t\t\t" << setw(width) << left << inputTag + referenceSignalSet[signalIter].ID
+		         << ": in  std_logic;" << endl;
+	}
+	for (int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
+	{
+		// last signal, omit the semicolon
+		if (signalIter == referenceSignalSet.size() - 1)
+			vhdl_out << "\t\t\t" << setw(width) << left << outputTag + referenceSignalSet[signalIter].ID
+			         << ": out  std_logic" << endl;
+		else
+			vhdl_out << "\t\t\t" << setw(width) << left << outputTag + referenceSignalSet[signalIter].ID
+			         << ": out  std_logic;" << endl;
+	}
+	vhdl_out << "\t\t);" << endl;
+	vhdl_out << "\tend component;" << endl;
+	vhdl_out << endl;
+
+	// Checker component
+	vhdl_out << "\tcomponent Checker" << endl;
+	vhdl_out << "\t\tport(" << endl;
+	vhdl_out << "\t\t\tControlClock            : in  std_logic;" << endl;
+	// SignalSet port
+	vhdl_out << "\t\t\tSignalSet               : in  std_logic_vector(" << referenceSignalSet.size()-1 << " downto 0);" << endl;
+	// Loop through the automata set and get the number of accepting and illegal states for each
+	int numAcceptingStates = 0;
+	int numIllegalStates = 0;
+	for(int automataIter = 0; automataIter < allAutomata.size(); automataIter++)
+	{
+		numIllegalStates += allAutomata[automataIter].numIllegalStates;
+		numAcceptingStates += allAutomata[automataIter].numAcceptingStates;
+	}
+	// EndStateDetections port
+	if(numAcceptingStates != 0)
+	{
+		vhdl_out << "\t\t\tEndStateDetections      : out std_logic_vector(" << numAcceptingStates-1 << " downto 0);" << endl;
+	}
+	// IllegalStateDetections port
+	if(numIllegalStates != 0)
+	{
+		vhdl_out << "\t\t\tIllegalStateDetections  : out std_logic_vector(" << numIllegalStates-1 << " downto 0)" << endl;
+	}
+	vhdl_out << "\t\t);" << endl;
+	vhdl_out << "\tend component;" << endl;
 	vhdl_out << endl;
 
 
-	// Loop through signals
-	vhdl_out << endl;
+	//! Write signals
 	vhdl_out << "\t--------------------------" << endl;
 	vhdl_out << "\t-- Signals                " << endl;
 	vhdl_out << "\t--------------------------" << endl;
-	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
-	{
-		signalNames.push_back(signalTag + referenceSignalSet[signalIter].ID);
-		vhdl_out << "\tsignal " << setw(width + signalTag.length()) << left
-		         << signalNames[signalIter] << ": std_logic;" << endl;
-	}
+//	vhdl_out << "\tsignal controller: std_logic;" << endl;
+	vhdl_out << endl;
 
 	// Add begin statement
-	vhdl_out << endl;
 	vhdl_out << "begin" << endl;
 	vhdl_out << endl;
 
-	// Populate signals?
-	vhdl_out << "\t--------------------------" << endl;
-	vhdl_out << "\t-- Read Checker ports     " << endl;
-	vhdl_out << "\t--------------------------" << endl;
-
-	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
-	{
-		vhdl_out << "\t" << setw(width + signalTag.length()) << left
-		         << signalNames[signalIter] << "<= " << inputNames[signalIter] << ";" << endl;
-	}
-
-	// Define behavior based on Controller signal
-	vhdl_out << endl;
-	vhdl_out << "\t--------------------------" << endl;
-	vhdl_out << "\t-- Controller Process     " << endl;
-	vhdl_out << "\t--------------------------" << endl;
-
-	vhdl_out << "process(Controller)" << endl;
-	vhdl_out << "begin" << endl;
-
-	vhdl_out << "\tif Controller = '1' then " << endl;
-	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
-	{
-		vhdl_out << "\t\t" << setw(width + outputTag.length()) << left << outputNames[signalIter] << "<= " << signalNames[signalIter] << ";" << endl;
-	}
-	vhdl_out << "else " << endl;
-	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
-	{
-		vhdl_out << "\t\t" << setw(width + outputTag.length()) << left << outputNames[signalIter] << "<= " << "\'X\'" << ";" << endl;
-	}
-	vhdl_out << "\tend if;" << endl;
-
-	vhdl_out << "end process;" << endl;
+//	// Define behavior based on Controller signal
+//	vhdl_out << endl;
+//	vhdl_out << "\t--------------------------" << endl;
+//	vhdl_out << "\t-- Controller Process     " << endl;
+//	vhdl_out << "\t--------------------------" << endl;
+//
+//	vhdl_out << "process(Controller)" << endl;
+//	vhdl_out << "begin" << endl;
+//
+//	vhdl_out << "\tif Controller = '1' then " << endl;
+//	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
+//	{
+//		vhdl_out << "\t\t" << setw(width + outputTag.length()) << left << outputNames[signalIter] << "<= " << signalNames[signalIter] << ";" << endl;
+//	}
+//	vhdl_out << "else " << endl;
+//	for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
+//	{
+//		vhdl_out << "\t\t" << setw(width + outputTag.length()) << left << outputNames[signalIter] << "<= " << "\'X\'" << ";" << endl;
+//	}
+//	vhdl_out << "\tend if;" << endl;
+//
+//	vhdl_out << "end process;" << endl;
+	vhdl_out << "--TODO: create process. When any IllegalState is reached, toggle the Controller signal to disable the connection." << endl;
 
 	// Close the architecture declaration
 	vhdl_out << "end Behavioral;" << endl;

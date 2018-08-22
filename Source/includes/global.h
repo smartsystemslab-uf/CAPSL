@@ -403,19 +403,4 @@ extern void processTransitions(vector_string transitions,
                                AutomataType automataType);
 
 
-//**********************
-//  Sandbox generation
-//**********************
-
-extern void generateSandbox_VHDL(signal_set referenceSignalSet, vector<automaton> allAutomata);
-
-extern void generateSandbox_SystemC(signal_set referenceSignalSet, vector<automaton> allAutomata);
-
-extern void generateChecker(signal_set referenceSignalSet, vector<automaton> allAutomata);
-
-extern void generateManager(signal_set referenceSignalSet, vector<automaton> allAutomata);
-
-extern void generateHWSandbox(signal_set referenceSignalSet, vector<automaton> allAutomata);
-
-
 #endif
