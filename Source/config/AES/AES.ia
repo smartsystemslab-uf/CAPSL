@@ -71,7 +71,7 @@ state
 ************* END INPUTS *****************
 ************* DEFINE OUTPUTS *****************
 
-out
+output
 
 ************* END OUTPUTS *****************
 ************* DEFINE INTERNALS *****************

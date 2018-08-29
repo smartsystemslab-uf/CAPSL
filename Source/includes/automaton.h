@@ -7,8 +7,8 @@ using namespace std;
 // Automaton definition
 class automaton
 {
-  public:
-    // General info
+ public:
+		// General info
     int numAcceptingStates;        // Number of end states
     int numIllegalStates;          // Number of illegal states
 
@@ -93,6 +93,10 @@ class automaton
 typedef vector<automaton> automatonSet;
 
 
+//**********************
+//  Sandbox generation
+//**********************
+
 extern void generateSandbox_VHDL(signal_set referenceSignalSet, vector<automaton> allAutomata);
 
 extern void generateSandbox_SystemC(signal_set referenceSignalSet, vector<automaton> allAutomata);
@@ -100,6 +104,8 @@ extern void generateSandbox_SystemC(signal_set referenceSignalSet, vector<automa
 extern void generateChecker(signal_set referenceSignalSet, vector<automaton> allAutomata);
 
 extern void generateManager(signal_set referenceSignalSet, vector<automaton> allAutomata);
+
+extern void generateHWSandbox(signal_set referenceSignalSet, vector<automaton> allAutomata);
 
 
 #endif

@@ -32,7 +32,7 @@ enum ConfigFormat{ ia_and_sere, config };
 struct configInfo
 {
 	// Containers for the information received from IA configuration
-    vector_string initState;
+  vector_string initState;
   vector_string acceptingStates;
   vector_string allStates;
   vector_string inputSignals;
@@ -402,14 +402,5 @@ extern void processTransitions(vector_string transitions,
                                transition_set *transitionSet,
                                AutomataType automataType);
 
-
-//**********************
-//  Sandbox generation
-//**********************
-// extern void generateSandbox_VHDL(signal_set referenceSignalSet, vector<automaton> allAutomata);
-//
-// extern void generateSandbox_SystemC(signal_set referenceSignalSet, vector<automaton> allAutomata);
-
-// extern void addAutomaton(automaton toAdd, automatonSet *set);
 
 #endif
