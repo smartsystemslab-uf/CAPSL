@@ -88,6 +88,8 @@ void readConfigFile(const char *filename, configInfo &config_info)
 	string prohibitedToken      = "prohibited";
 	string counterToken         = "counter";
 
+	string logicToken						= "logic";
+  string Size 								= "Size";
 	string inputToken           = "input";
 	string outputToken          = "output";
 	string vectorToken          = "vector";
@@ -121,8 +123,10 @@ void readConfigFile(const char *filename, configInfo &config_info)
 				if (line.find(inputToken) != string::npos)
 				{
 					// extract signal name, add it to container
+					cout << line << endl;
 					inputSignals.push_back(extractUntil(line, ":"));
 					cout << "input: " << extractUntil(line, ":") << endl;
+
 				}
 
 				// output signals
@@ -232,8 +236,33 @@ void readConfigFile(const char *filename, configInfo &config_info)
 
 				if (line.find("}") != string::npos)
 					break;
+				////added by Sujan
 
+				if(line.find(Size)!=string::npos)
+				{
+					getline(configFile, line);
+					line = removeComment(line);
+					int Key_size = std::stoi(extractSize(line,","));
+				  cout << Key_size << endl;
+				}
+
+				if (line.find(logicToken) != string::npos)
+				{
+					while (getline(configFile, line))
+					{
+						if (line.empty())
+							continue;
+
+						if (line.find("}") != string::npos)
+								break;
+
+						cout << line << endl;
+					}
+				}
+				//end of sujan's code
 				// counter {
+
+
 				if (line.find(counterToken) != string::npos)
 				{
 					while (getline(configFile, line))
@@ -247,6 +276,7 @@ void readConfigFile(const char *filename, configInfo &config_info)
 						// TODO handle transitions
 					}
 				}
+
 
 				// prohibited{
 				if (line.find(prohibitedToken) != string::npos)
@@ -364,6 +394,7 @@ void readIAFile(const char *filename, configInfo &config_info)
           {
             if(!initialState.empty())
             {
+							//cout << "My name is Sujan." <<endl;									//added for debug. remove it
               cout << "INIT STATE: " << removeComment(initialState) << "\n";
               initState.push_back(removeComment(initialState));
             }
@@ -402,6 +433,7 @@ void readIAFile(const char *filename, configInfo &config_info)
           {
             if(!componentSignal.empty())
             {
+							//cout << componentSignal <<endl;
               cout << "INPUT ACTION: " << removeComment(componentSignal) << "\n";
               inputSignals.push_back(removeComment(componentSignal));
             }
@@ -1680,7 +1712,19 @@ string extractUntil(string element, string delimiters)
 
 	return extract;
 }
+//Extracts the size
+string extractSize(string element, string delimiters)
+{
+	size_t start = element.find_first_of("=");		// skip unwanted tabs
 
+	size_t end = element.find_first_of(delimiters);		// stop at the first delimiter found
+
+	string extract = element.substr(start+1, end - 1 - start);
+	// removes extra whitespace from extracted element
+	extract.erase(remove(extract.begin(), extract.end(), ' '), extract.end());
+
+	return extract;
+}
 
 // Print function for state objects
 void printStateInfo(state state)

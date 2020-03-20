@@ -55,9 +55,10 @@ void generateChecker(signal_set referenceSignalSet, automatonSet allAutomata)
   vhdl_out << "--    so long as transitions exist to progress the automata" << endl;
   vhdl_out << endl;
 
+  int signalIter;
 	// Print signal info
   vhdl_out << "-- The signal set is indexed as listed below:" << endl;
-  for(int signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
+  for(signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
   {
     vhdl_out << "   -- " << signalIter << " - " << referenceSignalSet[signalIter].ID << endl;
   }
@@ -67,8 +68,13 @@ void generateChecker(signal_set referenceSignalSet, automatonSet allAutomata)
 	vhdl_out << "-- Define the automaton checking entity" << endl;
 	vhdl_out << "entity Checker is" << endl;
 	vhdl_out << "\tport(" << endl;
-	vhdl_out << "\t\tControlClock            : in  std_logic;\t-- This may not be needed" << endl;
+	//vhdl_out << "\t\tControlClock            : in  std_logic;\t-- This may not be needed" << endl;
 
+  for(signalIter = 0; signalIter < referenceSignalSet.size(); signalIter++)
+  {
+    vhdl_out << "\t\t" << referenceSignalSet[signalIter].ID << " : in  std_logic;" << endl;
+  }
+  vhdl_out << endl;
 	// Create SignalSet port
   //  This port size is determined by the number of signals available to the
   //  component to be checked, this classes signalSet

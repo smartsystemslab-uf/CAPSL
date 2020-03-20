@@ -80,11 +80,11 @@ int main(int argc, char **argv)
 	const char *options;
 	vector<string> flags;
 
-	//string configLocation = "config/BasicRSA/BasicRSA";		// use BasicRSA as default
+	string configLocation = "config/BasicRSA/BasicRSA";		// use BasicRSA as default
 	//string configLocation = "config/AES/AES";
-	string configLocation = "config/RS232/RS232";
-	ConfigFormat configFormat = ia_and_sere;
-
+	//string configLocation = "config/RS232/RS232";
+	//ConfigFormat configFormat = ia_and_sere;
+  ConfigFormat configFormat = config;
 	// SORT COMMAND LINE ARGUMENTS
 	// first, get rid of ./capsl
 	argc--; argv++;

@@ -73,6 +73,7 @@ struct componentSignal
   int         index;  // Index is set when placed in the signalSet
   string      ID;     // Signal ID as set in component configuration
   signalType  type;   // Type of component signal
+  int         keysize; // key size
 
   logicType   logicOperator;                           // SPOT composite signals use either AND or OR, not both
   vector<componentSignal> compositeSignalSet;     // Set of signals required for transition
@@ -355,6 +356,7 @@ extern void processSignals(vector_string inputSignals,
 
 extern string removeComment(string element);
 extern string extractUntil(string element, string delimiter);
+extern string extractSize(string element, string delimiter);
 
 void printStateInfo(state state);
 void printSignalInfo(componentSignal signal);
